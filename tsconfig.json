@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "src/components/Loader", "src/components/Aurora.jsx", "src/components/Lanyard.tsx"  ],
   "exclude": ["node_modules"]
 }
