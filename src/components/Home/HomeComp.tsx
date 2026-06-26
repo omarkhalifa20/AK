@@ -33,7 +33,7 @@ export default function HomeComp() {
   }, [controls]);
   return (
     <>
-    <div className=" home-comp h-[90vh]  md:h-screen ">
+    <div className=" home-comp h-[90dvh]  md:h-screen ">
         <div className='container overflow-y-hidden mx-auto h-full flex flex-col justify-end items-center text-center md:px-6 '>
             <div className='flex relative justify-center items-center'>
             <motion.img
