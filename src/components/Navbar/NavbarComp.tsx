@@ -168,7 +168,7 @@ export default function NavbarComp({ initialCart, initialWishlist }: ProductHome
   
   <div className="flex gap-5 text-white items-center">
     
-    {user ? (
+    
       <>
         <div className="relative">
           <Link href="/cart" className="text-white">
@@ -187,23 +187,9 @@ export default function NavbarComp({ initialCart, initialWishlist }: ProductHome
           </span>
         </div>
       </>
-    ) : (
-      <Popover>
-        <PopoverTrigger className="cursor-pointer w-fit rounded-md">
-          <UserRound className="w-[20px] md:w-[32px]" />
-        </PopoverTrigger>
-        <PopoverContent className="p-2 w-45 md:w-50 mt-5 mr-4 z-50">
-          <div className="flex flex-col Orbitron font-medium gap-2">
-            <Link href="/login" className="block py-1 text-[12px] md:text-[14px] bg-transparent border text-center border-[#999999] hover:bg-[#f1f1f1] hover:text-black duration-400 rounded-lg">
-              LogIn
-            </Link>
-            <Link href="/register" className="block py-1 text-[12px] md:text-[14px] bg-transparent text-center border border-[#999999] hover:bg-[#f1f1f1] hover:text-black duration-400 rounded-lg">
-              Register
-            </Link>
-          </div>
-        </PopoverContent>
-      </Popover>
-    )}
+ 
+     
+   
     <Sheet>
       <SheetTrigger>
         <Menu color="#ffff" />
@@ -223,7 +209,7 @@ export default function NavbarComp({ initialCart, initialWishlist }: ProductHome
         </div>
 
         <div className="flex gap-5 justify-center items-center mt-7 text-black">
-          {!user ? (
+          
             <>
               <div className="relative">
                 <Link href="/cart" className="">
@@ -241,8 +227,9 @@ export default function NavbarComp({ initialCart, initialWishlist }: ProductHome
                   {wishlistCount}
                 </span>
               </div>
+
             </>
-          ) : (
+        
             <Popover>
               <PopoverTrigger className="cursor-pointer w-fit rounded-md">
                 <UserRound className="w-[20px] md:w-[32px]" />
@@ -267,7 +254,7 @@ export default function NavbarComp({ initialCart, initialWishlist }: ProductHome
                 </div>
               </PopoverContent>
             </Popover>
-          )}
+          
         </div>
 
       </SheetContent>
