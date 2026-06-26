@@ -40,8 +40,8 @@ export default function HomeComp() {
              initial={{ scale: 0.8, opacity: 0 }} 
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 1.7, ease: "easeIn" }}
-             className=' w-[375px]  md:w-[65%]  lg:w-[52%] xl:w-[42%] 2xl:w-[35%] z-[30] relative top-[6%]  '  src="/homemodel.png" alt="" />
-                <div className='Orbitron flex flex-col h-full  font-bold absolute top-[-40] md:top-[0] lg:top-[150] '>
+             className=' w-[330px]  md:w-[53%]  lg:w-[43%] xl:w-[33%] 2xl:w-[28.5%] z-[30] relative top-[6%]  '  src="/homemodel.png" alt="" />
+                <div className='Orbitron flex flex-col h-full  font-bold absolute top-[-30] md:top-[0] lg:top-[150] '>
                   <motion.h1
                   initial={{ x:-150, opacity: 0 }}
                   animate={{ x:0, opacity: 1 }}
