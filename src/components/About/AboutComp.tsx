@@ -7,23 +7,23 @@ export default function AboutComp() {
   return (
     <>
       
-     <div id='about' className=' overflow-hidden  relative   '>
+     <div id='about' className=' overflow-hidden    relative   '>
       <motion.div 
         initial={{ x:120 , opacity: 0 }} 
         whileInView={{ x:0, opacity: 1 }}
         transition={{ duration: 1.7, ease: "easeIn"}}
         viewport={{ once: true }}
-      className='parent-about'>
+      className='parent-about hidden lg:flex'>
 
       </motion.div>
-      <div className='container  py-20 w-[90%] mx-auto  text-center '>
-       <div className='flex items-start '>
+      <div className='container py-5   lg:py-20 w-[90%] mx-auto  text-center '>
+       <div className='flex   items-start '>
         <motion.div 
         initial={{ x:-50 , opacity: 0 }} 
         whileInView={{ x:0, opacity: 1 }}
         transition={{ duration: 1.7, ease: "easeIn"}}
         viewport={{ once: true }}
-         className='w-1/2 aboutpic relative'> 
+         className='w-1/2 hidden lg:flex aboutpic relative'> 
           <img className=' grayscale z-5 relative' src="/aboutmodel.jpg" alt="" />  
           
         </motion.div>
@@ -32,12 +32,12 @@ export default function AboutComp() {
         whileInView={{ scale: 1, opacity: 1 }}
         transition={{ duration: 1.7, ease: "easeIn" }}
         viewport={{ once: true }}
-         className='w-1/2  flex flex-col gap-y-10 z-6 pt-8 '>
+         className='lg:w-1/2 items-center lg:items-start  flex flex-col gap-y-7 lg:gap-y-10 z-6 pt-0 lg:pt-8 '>
        
-         <h3 className='Bungee  ml-[-114px] text- text-start text-[80px]'><span className='text-white'>Ab</span>out Us,,</h3>
+         <h3 className='Bungee  lg:ml-[-114px] text-center lg:text-start text-[40px] lg:text-[80px]'><span className='lg:text-white'>Ab</span>out Us,,</h3>
          <div></div>
-         <p className='z-6 pl-2 text-[18px] pr-40 Mada font-medium text-center'>AK Store مرحبًا بكم في </p>
-         <p className='z-6 pl-2 pr-40 Mada font-medium text-end'>  
+         <p className='z-6 pl-0 self-center lg:pl-2 text-[18px] pr-0 lg:pr-28 xl:pr-40 Mada font-medium text-center'>AK Store مرحبًا بكم في </p>
+         <p className='z-6 pl-0 lg:pl-2 pr-0 lg:pr-28 xl:pr-40 Mada font-medium text-end'>  
 <br />
 في AK Store نؤمن أن الحذاء ليس مجرد قطعة تُرتدى، بل هو عنوان للأناقة، والراحة، والثقة في كل خطوة
 
@@ -51,8 +51,8 @@ export default function AboutComp() {
 <br />
 
 </p>
- <p className='z-6 pl-2 text-[18px] pr-40 Mada font-medium text-center'>خطوتك تبدأ من هنا</p>
-         <ul className="wrapper ">
+ <p className='z-6 pl-0 self-center lg:pl-2 text-[18px] pr-0 lg:pr-28 xl:pr-40 Mada font-medium text-center'>خطوتك تبدأ من هنا</p>
+         <ul className="wrapper !pt-3 !lg:pt-[40px] pr-0 lg:pr-28 xl:pr-40  ">
      <li className="icon facebook">
     <span className="tooltip">Facebook</span>
     <svg viewBox="0 0 320 512" height="1.2em" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
