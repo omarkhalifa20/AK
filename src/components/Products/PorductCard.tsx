@@ -18,9 +18,7 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   
-  useEffect(() => {
-    setIsFavorite(initialIsFavorite);
-  }, [initialIsFavorite]);
+
   
   async function handleAddToCart() {
     setLoading(true);
@@ -112,32 +110,67 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
   }
   
   return (
-    <>
-      <div className="card">
-        <div className="content ">
-          <img className='rounded-xl w-full aspect-square object-cover z-55' src={prod.images[0]} alt="" />
-          <div className='flex text-center rounded-b-2xl bg-[#ffffff1f] text-[12.5px] font-bold mt-[-20px] Orbitron pt-[12px] px-3 gap-5 items-center justify-center '>
+    <><div className="card w-full h-full flex flex-col">
+    {/* أضفنا h-full و flex flex-col عشان الكارت يملأ المساحة المتاحة له بالكامل */}
+    <div className="content flex flex-col flex-grow h-full">
+      
+      {/* صورة المنتج */}
+      <div className="relative w-full aspect-square overflow-hidden rounded-xl z-10">
+        <img 
+          className='w-full h-full object-cover transition-transform duration-300 hover:scale-105' 
+          src={prod.images[0]} 
+          alt={prod.name} 
+        />
+      </div>
+  
+      {/* تصنيفات المنتج (Categories) */}
+      <div className='flex text-center rounded-b-2xl bg-[#ffffff1f] text-[12.5px] font-bold mt-[-20px] Orbitron pt-[12px] px-3 gap-5 items-center justify-center '>
            {prod.category.map((cat,index) => (
             <p key={index}>{cat}</p>
            ))}
           </div>
-          <h3 className='text-center text-[20px] mb-2 Marhey'>{prod.name}</h3>
-          <p className="text-end flex-grow Playpen text-[13px] mb-3">
+  
+      <div className="flex flex-col flex-grow mt-4 px-2">
+        <h3 className='text-center text-[17px] md:text-[20px] mb-2 Marhey truncate' title={prod.name}>
+          {prod.name}
+        </h3>
+        
+        <p className="text-center text-gray-400 Playpen text-[11px] md:text-[13px] mb-3 line-clamp-2">
           {prod.description}
-          </p>
-          <p className='acme text-center text-[22px]'>{prod.price} EGP</p>
-          
-          <div className='flex rounded-2xl  justify-center p-2 gap-x-8 px-5 w-[70%] mx-auto  bg-[#ffffff4c] items-center  '>
-            {loading ? <Loader3/> : <>
-              <button onClick={handleAddToCart} className='text-[12px] cursor-pointer'> <ShoppingBag size={25} /></button>
-              <button onClick={handleAddToWishlist} className='cursor-pointer'><Heart size={25} fill={isFavorite ? "red" : "none"}
-                      color={isFavorite ? "red" : "currentColor"} 
-                      className={`transition-colors duration-300 ${isFavorite ? 'scale-110' : ''}`} /></button>
-              <button onClick={() => router.push(`/product/${prod.id}`)} className='cursor-pointer'><View size={25} /></button>
-            </>}
-          </div>
-        </div>
+        </p>
       </div>
+  
+      {/* السعر */}
+      <p className='acme text-center text-[18px] md:text-[22px] mb-3'>
+        {prod.price} EGP
+      </p>
+      
+      <div className='flex rounded-2xl justify-center py-2 px-3 gap-x-4 md:gap-x-8 w-[95%] lg:w-[80%] mx-auto bg-[#ffffff4c] items-center mt-auto mb-2'>
+        {loading ? (
+          <Loader3 />
+        ) : (
+          <>
+            <button onClick={handleAddToCart} className='cursor-pointer hover:opacity-70 transition-opacity'> 
+              <ShoppingBag className="w-5 h-5 md:w-[25px] md:h-[25px]" />
+            </button>
+            
+            <button onClick={handleAddToWishlist} className='cursor-pointer'>
+              <Heart 
+                className={`w-5 h-5 md:w-[25px] md:h-[25px] transition-all duration-300 ${isFavorite ? 'scale-110' : 'hover:scale-110'}`} 
+                fill={isFavorite ? "red" : "none"}
+                color={isFavorite ? "red" : "currentColor"} 
+              />
+            </button>
+            
+            <button onClick={() => router.push(`/product/${prod.id}`)} className='cursor-pointer hover:opacity-70 transition-opacity'>
+              <View className="w-5 h-5 md:w-[25px] md:h-[25px]" />
+            </button>
+          </>
+        )}
+      </div>
+  
+    </div>
+  </div>
     </>
   )
 }

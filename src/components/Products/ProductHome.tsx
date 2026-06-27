@@ -1,16 +1,20 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import PorductCard from './PorductCard'
-import { motion, useAnimation } from "framer-motion";
+import { motion } from "framer-motion";
 import { Productmod } from '@/Types/Productmod';
-import { get } from 'http';
-import { getProducts } from '@/Action/GetProducts';
-import { supabase } from '@/lib/supabaseClient';
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import Loader2 from '../Loader2/Loader2';
 import { Wishlistmod } from '@/Types/Wishlistmod';
+
+// استيراد Swiper والموديول الخاص بالنقاط (Pagination)
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination } from 'swiper/modules';
+
+// استيراد ملفات الستايل الخاصة بـ Swiper
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 interface ProductHomeProps {
   initialProducts: Productmod[];
@@ -18,38 +22,93 @@ interface ProductHomeProps {
 }
 
 export default function ProductHome({ initialProducts, initialWishlist }: ProductHomeProps) {
- const Pathname = usePathname()
+  const Pathname = usePathname()
 
   const wishlistIds = new Set(
     initialWishlist.map((item) => String(item.product_id))
   )
+
+  const availableProducts = initialProducts.filter((p) => p.quantity > 0);
   
+  const mensProducts = availableProducts.filter(p => p.category?.includes('mens'));
+  const womensProducts = availableProducts.filter(p => p.category?.includes('womens'));
+  const kidsProducts = availableProducts.filter(p => p.category?.includes('childs')); 
+  const oldsProducts = availableProducts.filter(p => p.category?.includes('olds'));
+
+  const renderProductSection = (title: string, link: string, products: Productmod[]) => {
+    return (
+      <div className='mb-24 w-full'>
+        <div className='relative flex items-center justify-between mb-8 pb-3 border-b-2 border-gray-100'>
+          <h3 className='font-normal Bungee text-[18px] md:text-[28px] uppercase tracking-wide text-black'>{title}</h3>
+          <Link className='flex items-center Bungee text-[13px] md:text-[15px] border py-[5px] px-[9px] md:py-2 md:px-4 hover:bg-black hover:text-white transition-all duration-300 rounded-md border-black ' href={link}>
+            Show All <ArrowRight className='ml-2' size={18} />
+          </Link>
+        </div>
+
+        {/* شرط فحص وجود منتجات بالقسم */}
+        {products.length === 0 ? (
+          // الرسالة البديلة في حال عدم توفر منتجات بالستوك حالياً
+          <div className="flex items-center justify-center h-44 bg-gray-50 border border-dashed border-gray-300 rounded-xl">
+            <p className="text-gray-400 font-medium text-lg tracking-wide">
+              عفواً، لا يوجد منتجات في هذا القسم حالياً.
+            </p>
+          </div>
+        ) : (
+          // السلايدر يظهر فقط في حال وجود منتج واحد أو أكثر
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: "-50px" }}
+            className="relative" 
+          >
+            <Swiper
+              modules={[Pagination]}
+              pagination={{ 
+                clickable: true, 
+                dynamicBullets: true,
+              }}
+              spaceBetween={8}
+              breakpoints={{
+                // شاشات الموبايل (من 0 إلى 640): يعرض كارتين فقط
+                0: { slidesPerView: 2, slidesPerGroup: 2 }, 
+                
+                // شاشات التابلت (من 640 إلى 1024): يعرض 3 كروت
+                640: { slidesPerView: 3, slidesPerGroup: 3 }, 
+                
+                // اللابتوب والشاشات الكبيرة (أكبر من 1024): يعرض 4 كروت
+                1024: { slidesPerView: 4, slidesPerGroup: 4 }, 
+              }}
+              className="pb-16" 
+            >
+              {products.map((product) => (
+                <SwiperSlide key={product.id}>
+                  <PorductCard initialIsFavorite={wishlistIds.has(String(product.id))} prod={product}/> 
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </motion.div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
-    <div id='products' className={Pathname === '/product' ?"container mx-auto pt-23 overflow-x-hidden pb-20 w-[90%]" :"container mx-auto pt-9 overflow-x-hidden pb-20 w-[90%]"}>
-      <div className=' relative flex items-center justify-center mb-23 '>
-      <h3 className='text-center font-normal  Bungee text-[35px]'>Our Store</h3>
-      <Link className='flex items-center absolute right-0 Bungee text-[16px] border p-2 hover:bg-black hover:text-white duration-00 justify-self-end rounded-md border-black ' href="/product">All Products <ArrowRight /> </Link>
+      <div id='products' className={Pathname === '/product' ? "container mx-auto pt-24 overflow-x-hidden pb-20 w-[90%]" : "container mx-auto pt-12 overflow-x-hidden pb-20 w-[90%]"}>
+        
+        {/* عنوان المتجر الرئيسي أعلى الصفحة */}
+        <div className='flex flex-col items-center justify-center mb-16'>
+          <h2 className='text-center font-normal Bungee text-[38px] tracking-wider border-b-4 border-black pb-2 px-6'>Our Store</h2>
+        </div>
+
+        {/* استدعاء السكاشن الأربعة بالتوالي */}
+        {renderProductSection("Men's Products", "/mens", mensProducts)}
+        {renderProductSection("Women's Products", "/womens", womensProducts)}
+        {renderProductSection("Kids Products", "/childs", kidsProducts)}
+        {renderProductSection("Older Products", "/olds", oldsProducts)}
+
       </div>
-      <motion.div 
-      initial={{ scale: 0.8, opacity: 0 }} 
-      whileInView={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 1.7, ease: "easeIn" }}
-      viewport={{ once: true }}
-      className='grid grid-cols-12 gap-19'>
-      
-      {initialProducts
-        .filter((product) => product.quantity > 0)
-        .map((product) => (
-          <div key={product.id} className='col-span-3'>
-            <PorductCard initialIsFavorite={wishlistIds.has(String(product.id))}  prod={product}/> 
-          </div>
-      ))}
-      
-      </motion.div> 
-      <p className='text-center mx-auto rounded-md mt-11 font-medium py-1 px-5 Orbitron text-[14px]  text-black border border-black w-fit hover:bg-black hover:text-white duration-300 cursor-pointer ' >Show More..</p>
-      
-    </div>
     </>
   )
 }
