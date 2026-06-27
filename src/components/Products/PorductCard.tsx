@@ -12,12 +12,76 @@ import { toast } from 'react-hot-toast';
 import Loader3 from '../Loader3/Loader3'
 import { useStore } from '@/useStore'
 
+import { useForm } from "react-hook-form";
+import { Loader2 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+
 export default function PorductCard({prod, initialIsFavorite = false} : {prod:Productmod, initialIsFavorite?: boolean}) {
   const { incrementCart, incrementWishlist } = useStore();
   const [loading, setLoading] = useState(false)
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   
+  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
+  type FormValues = {
+    fullname: string;
+    number: string;
+    number2?: string;
+    address: string;
+    details?: string;
+  };
+ 
+  async function onDirectSubmit(data:FormValues) {
+    try {
+      setLoading(true);
+      
+      const finalOrder = {
+        customer_info: {
+          name: data.fullname,
+          phone: Number(data.number),
+          phone2: Number(data.number2),
+          address: data.address,
+          details: data.details
+        },
+        items: [{
+          product_id: prod.id,
+          product_name: prod.name,
+          quantity: 1, 
+          price_per_unit: prod.price,
+          subtotal: prod.price,
+          details: [],
+          image: prod.images[0]
+        }],
+        total_amount: prod.price,
+        order_date: new Date().toISOString()
+      };
+
+      
+      toast.success("تم تأكيد طلبك بنجاح!");
+      
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast.error("حدث خطأ غير متوقع في الاتصال بالسيرفر.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   
   async function handleAddToCart() {
@@ -44,7 +108,7 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
         }
       } else {
         const guestCart = JSON.parse(localStorage.getItem("guestCart") || "[]");
-        // استخدمنا Productmod بدل any
+       
         const isItemInCart = guestCart.find((item: Productmod) => String(item.id) === String(prod.id));
 
         if (isItemInCart) {
@@ -87,7 +151,6 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
         }
       } else {
         const guestWishlist = JSON.parse(localStorage.getItem("guestWishlist") || "[]");
-        // استخدمنا Productmod بدل any
         const isItemInWishlist = guestWishlist.find((item: Productmod) => String(item.id) === String(prod.id));
 
         if (isItemInWishlist || isFavorite) {
@@ -110,67 +173,135 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
   }
   
   return (
-    <><div className="card w-full h-full flex flex-col">
-    {/* أضفنا h-full و flex flex-col عشان الكارت يملأ المساحة المتاحة له بالكامل */}
-    <div className="content flex flex-col flex-grow h-full">
+    <>
+  <div className="w-full h-full flex flex-col">
+    <div className="flex flex-col flex-grow h-full">
       
-      {/* صورة المنتج */}
-      <div className="relative w-full aspect-square overflow-hidden rounded-xl z-10">
-        <img 
-          className='w-full h-full object-cover transition-transform duration-300 hover:scale-105' 
-          src={prod.images[0]} 
-          alt={prod.name} 
-        />
-      </div>
-  
-      {/* تصنيفات المنتج (Categories) */}
-      <div className='flex text-center rounded-b-2xl bg-[#ffffff1f] text-[12.5px] font-bold mt-[-20px] Orbitron pt-[12px] px-3 gap-5 items-center justify-center '>
-           {prod.category.map((cat,index) => (
-            <p key={index}>{cat}</p>
-           ))}
-          </div>
-  
-      <div className="flex flex-col flex-grow mt-4 px-2">
-        <h3 className='text-center text-[17px] md:text-[20px] mb-2 Marhey truncate' title={prod.name}>
-          {prod.name}
-        </h3>
-        
-        <p className="text-center text-gray-400 Playpen text-[11px] md:text-[13px] mb-3 line-clamp-2">
-          {prod.description}
-        </p>
-      </div>
-  
-      {/* السعر */}
-      <p className='acme text-center text-[18px] md:text-[22px] mb-3'>
-        {prod.price} EGP
-      </p>
       
-      <div className='flex rounded-2xl justify-center py-2 px-3 gap-x-4 md:gap-x-8 w-[95%] lg:w-[80%] mx-auto bg-[#ffffff4c] items-center mt-auto mb-2'>
+      <div 
+        className="flex flex-col flex-grow cursor-pointer group"
+        onClick={() => router.push(`/product/${prod.id}`)}
+      >
+       
+        <div className="relative w-full aspect-square overflow-hidden rounded-xl z-10">
+          <img 
+            className='w-full h-full object-cover transition-transform duration-300 group-hover:scale-105' 
+            src={prod.images[0]} 
+            alt={prod.name} 
+          />
+        </div>
+
+       
+        <div className="flex justify-between mt-4 px-2">
+          <p className='acme text-center text-[14px] md:text-[22px] mb-3'>
+            {prod.price} EGP
+          </p>
+          <h3 className='text-center text-[14px] md:text-[20px] mb-2 Marhey truncate' title={prod.name}>
+            {prod.name}
+          </h3>
+        </div>
+      </div>
+
+    
+      <div className='grid grid-cols-12  gap-2 justify-center    lg:mx-auto  items-center mt-auto mb-2'>
         {loading ? (
           <Loader3 />
         ) : (
           <>
-            <button onClick={handleAddToCart} className='cursor-pointer hover:opacity-70 transition-opacity'> 
-              <ShoppingBag className="w-5 h-5 md:w-[25px] md:h-[25px]" />
+            <AlertDialog>
+  <AlertDialogTrigger className=' col-span-12 lg:col-span-8 ' asChild>
+    
+    <Button 
+      onClick={(e) => e.stopPropagation()} 
+      className='bg-[#000] border-2 text-[12px] lg:text-[15px] font-medium border-black Playpen cursor-pointer   w-full hover:bg-transparent hover:text-black transition-colors duration-500   mx-auto block text-white rounded-2xl' 
+      variant="outline"
+    >
+      شراء الآن
+    </Button>
+  </AlertDialogTrigger>
+
+  <AlertDialogContent 
+    onClick={(e) => e.stopPropagation()} 
+    className='Playpen max-h-[90vh] overflow-y-auto'
+  >
+    <AlertDialogTitle className='mb-3 text-center'>تأكيد الطلب السريع</AlertDialogTitle>
+    {loading ? <Loader2 className="mx-auto animate-spin my-4" /> :
+      <form onSubmit={handleSubmit(onDirectSubmit)}>
+        <Accordion type="single" collapsible defaultValue="shipping" className="max-w-lg ">
+          
+          <AccordionItem value="shipping">
+            <AccordionTrigger>بيانات التواصل</AccordionTrigger>
+            <AccordionContent className='flex flex-col gap-2'>
+              <Input {...register("fullname", { required: "من فضلك ادخل الاسم كامل" })} placeholder="ادخل اسمك" type="text" className='w-full focus-visible:border-2 focus-visible:border-black text-end border-[#6d6d6d]' />
+              {errors.fullname && <p className='text-red-500 text-sm mt-1 text-end'>{errors.fullname.message as string}</p>}
+              
+              <Input {...register("number", { required: "من فضلك ادخل رقم الهاتف" })} placeholder="ادخل رقم الهاتف" type="number" className='w-full focus-visible:border-2 focus-visible:border-black text-end border-[#6d6d6d]' />
+              {errors.number && <p className='text-red-500 text-sm mt-1 text-end'>{errors.number.message as string}</p>}
+
+              <Input {...register("number2")} placeholder="ادخل رقم هاتف اخر (ان وجد)" type="number" className='w-full focus-visible:border-2 focus-visible:border-black text-end border-[#6d6d6d]' />
+              
+              <Input {...register("address", { required: "من فضلك ادخل العنوان" })} placeholder="ادخل العنوان" type="text" className='w-full focus-visible:border-2 focus-visible:border-black text-end border-[#6d6d6d]' />
+              {errors.address && <p className='text-red-500 text-sm mt-1 text-end'>{errors.address.message as string}</p>}
+
+              <Textarea {...register("details")} placeholder="تفاصيل اضافيه (اكتب المقاس أو اللون المطلوب هنا)" className='w-full focus-visible:border-2 focus-visible:border-black text-end border-[#6d6d6d]' />
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="returns">
+            <AccordionTrigger>تفاصيل المنتج</AccordionTrigger>
+            <AccordionContent>
+              <div className='bg-[#f8f9fa] border border-[#e2e8f0] rounded-lg p-3 flex flex-col gap-2'>
+                <div className='flex justify-between items-center border-b border-gray-200 pb-2'>
+                  <span className='font-bold text-[15px] text-[#000000]'>{prod.price} EGP</span>
+                  <div className='flex items-center gap-3 text-right'>
+                    <div>
+                      <p className='font-bold text-[14px]'>{prod.name}</p>
+                      <p className='text-[12px] text-gray-500'>الكمية: 1</p>
+                    </div>
+                    <img src={prod.images[0]} className='w-[45px] h-[45px] object-cover rounded shadow-sm' alt={prod.name} />
+                  </div>
+                </div>
+              </div>
+              
+              <div className='mt-4 pt-3 border-t-2 border-black flex justify-between items-center px-1'>
+                <span className='font-bold text-[18px] text-[#000000]'>{prod.price} EGP</span>
+                <span className='font-bold text-[16px]'>: الإجمالي المطلوب</span>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+
+        <button type='submit' className='font-normal w-full mb-3 mt-4 p-[7px] rounded-md cursor-pointer border border-black hover:bg-white transition-colors duration-400 hover:text-black bg-black text-white'>
+          تأكيد الطلب
+        </button>
+        <AlertDialogCancel className='font-medium w-full cursor-pointer hover:bg-gray-100'>إلغاء</AlertDialogCancel>
+      </form>
+    }
+  </AlertDialogContent>
+</AlertDialog>
+
+
+            <div className=' grid grid-cols-12 gap-3 lg:p-2 justify-center lg:flex rounded-2xl w-full col-span-12 lg:col-span-4  lg:bg-gray-300'>
+            <button onClick={handleAddToCart} className='cursor-pointer rounded-xl lg:rounded-none py-[2px] lg:py-0 col-span-6 flex justify-center lg:block bg-gray-300 lg:bg-transparent '> 
+              <ShoppingBag className="w-5 h-5 md:w-[25px] md:h-[25px] transition-all duration-300 scale-100 hover:scale-110 " />
             </button>
             
-            <button onClick={handleAddToWishlist} className='cursor-pointer'>
+            <button onClick={handleAddToWishlist} className='cursor-pointer  rounded-xl lg:rounded-none py-[2px] lg:py-0 flex justify-center lg:block bg-gray-300 lg:bg-transparent col-span-6'>
               <Heart 
                 className={`w-5 h-5 md:w-[25px] md:h-[25px] transition-all duration-300 ${isFavorite ? 'scale-110' : 'hover:scale-110'}`} 
                 fill={isFavorite ? "red" : "none"}
                 color={isFavorite ? "red" : "currentColor"} 
               />
             </button>
+            </div>
             
-            <button onClick={() => router.push(`/product/${prod.id}`)} className='cursor-pointer hover:opacity-70 transition-opacity'>
-              <View className="w-5 h-5 md:w-[25px] md:h-[25px]" />
-            </button>
+            
           </>
         )}
       </div>
-  
+
     </div>
   </div>
-    </>
+</>
   )
 }

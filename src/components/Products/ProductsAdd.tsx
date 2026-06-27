@@ -15,6 +15,7 @@ import { Plus, X, ListPlus } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
 import Loader from '../Loader/Loader'
 import toast from 'react-hot-toast'
+import { Productmod } from '@/Types/Productmod' // استيراد الـ Type الخاص بالمنتج
 
 type Inputs = {
   productName: string
@@ -26,13 +27,18 @@ type Inputs = {
 
 // نوع بيانات المتغير الجديد
 type Variant = {
-  id: string; // عشان نقدر نمسحه من الـ UI بسهولة
+  id: string; 
   color: string;
   size: string;
   quantity: number;
 }
 
-export default function ProductsAdd() {
+// تعريف الـ Props بنوع بيانات صارم ومحدد بدلاً من any
+type ProductsAddProps = {
+  setProducts?: React.Dispatch<React.SetStateAction<Productmod[]>>
+}
+
+export default function ProductsAdd({ setProducts }: ProductsAddProps) {
   const categories = ["mens", "womens", "childs", "olds"]
   const [loading, setLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
@@ -111,25 +117,29 @@ export default function ProductsAdd() {
     }
 
     // إضافة المنتج لقاعدة البيانات
-    const { error } = await supabase.from("Products").insert([
+    const { data: newProduct, error } = await supabase.from("Products").insert([
       {
         name: data.productName,
         price: Number(data.productPrice),
         category: data.productCategory,
         description: data.productDescription,
         images: imageUrls,
-        
         quantity: totalQuantity,
-        
         variants: variants 
       }
-    ])
+    ]).select()
     
     if (error) {
       console.log(error.message)
       toast.error("حدث خطأ أثناء إضافة المنتج")
     } else {
       toast.success("تم إضافة المنتج بنجاح")
+      
+      // تحديث قائمة المنتجات في الجدول فوراً بنوع بيانات محدد مسبقاً
+      if (setProducts && newProduct) {
+        setProducts((prev) => [newProduct[0] as Productmod, ...prev]);
+      }
+
       reset()
       setVariants([])
       setIsOpen(false)

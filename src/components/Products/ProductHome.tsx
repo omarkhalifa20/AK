@@ -37,7 +37,7 @@ export default function ProductHome({ initialProducts, initialWishlist }: Produc
 
   const renderProductSection = (title: string, link: string, products: Productmod[]) => {
     return (
-      <div className='mb-24 w-full'>
+      <div className='mb-15 w-full'>
         <div className='relative flex items-center justify-between mb-8 pb-3 border-b-2 border-gray-100'>
           <h3 className='font-normal Bungee text-[18px] md:text-[28px] uppercase tracking-wide text-black'>{title}</h3>
           <Link className='flex items-center Bungee text-[13px] md:text-[15px] border py-[5px] px-[9px] md:py-2 md:px-4 hover:bg-black hover:text-white transition-all duration-300 rounded-md border-black ' href={link}>
@@ -54,7 +54,6 @@ export default function ProductHome({ initialProducts, initialWishlist }: Produc
             </p>
           </div>
         ) : (
-          // السلايدر يظهر فقط في حال وجود منتج واحد أو أكثر
           <motion.div 
             initial={{ opacity: 0, y: 20 }} 
             whileInView={{ opacity: 1, y: 0 }}
@@ -70,19 +69,14 @@ export default function ProductHome({ initialProducts, initialWishlist }: Produc
               }}
               spaceBetween={8}
               breakpoints={{
-                // شاشات الموبايل (من 0 إلى 640): يعرض كارتين فقط
-                0: { slidesPerView: 2, slidesPerGroup: 2 }, 
-                
-                // شاشات التابلت (من 640 إلى 1024): يعرض 3 كروت
-                640: { slidesPerView: 3, slidesPerGroup: 3 }, 
-                
-                // اللابتوب والشاشات الكبيرة (أكبر من 1024): يعرض 4 كروت
+                0: { slidesPerView: 2, slidesPerGroup: 2 },  
+                640: { slidesPerView: 3, slidesPerGroup: 3 },  
                 1024: { slidesPerView: 4, slidesPerGroup: 4 }, 
               }}
               className="pb-16" 
             >
               {products.map((product) => (
-                <SwiperSlide key={product.id}>
+                <SwiperSlide className='mb-8' key={product.id}>
                   <PorductCard initialIsFavorite={wishlistIds.has(String(product.id))} prod={product}/> 
                 </SwiperSlide>
               ))}

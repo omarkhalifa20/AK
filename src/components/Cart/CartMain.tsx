@@ -34,14 +34,14 @@ import { AddOrders } from '@/Action/Orders'
 import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation';
 import Loader2 from '../Loader2/Loader2'
-import { useAuth } from '@/app/(site)/(auth)/useAuth'; // ضفنا الـ Auth عشان نعرف هو يوزر ولا ضيف
-import { useStore } from '@/useStore'; // ضفنا الستور عشان نحدث عداد الـ Navbar
+import { useAuth } from '@/app/(site)/(auth)/useAuth'; 
+import { useStore } from '@/useStore'; 
 
 export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
   const [loading, setLoading] = useState(false)
   const router = useRouter();
   const { user } = useAuth();
-  const { setInitialCounts, wishlistCount } = useStore(); // لجلب وتحديث العداد
+  const { setInitialCounts, wishlistCount } = useStore(); 
   
   type FormValues = {
     fullname: string
@@ -55,7 +55,7 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
   const [cart, setCart] = useState<CartMod[]>([]);
   const [itemSelections, setItemSelections] = useState<{ [key: string]: { color: string, size: string }[] }>({});
 
-  // 1. جلب البيانات بناءً على حالة العميل
+  
   useEffect(() => {
     if (user) {
       setCart(cartdata);
@@ -65,7 +65,7 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
     }
   }, [user, cartdata]);
 
-  // 2. تحديث الكميات وحفظها للضيوف
+ 
   const updateQuantity = (itemId: string, action: 'plus' | 'minus') => {
     setCart((prevCart) => {
       const newCart = prevCart.map((item) => {
@@ -132,7 +132,6 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
 
   const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   
-  // 3. تأكيد الطلب (متاح للجميع دلوقتي)
   async function onSubmit(data:FormValues) {
     const orderItems = cart.map((item) => ({
       product_id: item.product_id || item.id, // item.id للضيوف، product_id للمسجلين
