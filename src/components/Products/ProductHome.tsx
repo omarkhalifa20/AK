@@ -45,10 +45,10 @@ export default function ProductHome({ initialProducts, initialWishlist }: Produc
           </Link>
         </div>
 
-        {/* شرط فحص وجود منتجات بالقسم */}
+       
         {products.length === 0 ? (
-          // الرسالة البديلة في حال عدم توفر منتجات بالستوك حالياً
-          <div className="flex items-center justify-center h-44 bg-gray-50 border border-dashed border-gray-300 rounded-xl">
+       
+          <div className="flex items-center justify-center Playpen h-44 bg-gray-50 border border-dashed border-gray-300 rounded-xl">
             <p className="text-gray-400 font-medium text-lg tracking-wide">
               عفواً، لا يوجد منتجات في هذا القسم حالياً.
             </p>
