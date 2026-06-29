@@ -423,7 +423,7 @@ export default function ProductDet() {
                   </AlertDialogContent>
                 </AlertDialog>
 
-                <div className='grid grid-cols-12 gap-3 lg:p-2 justify-center lg:flex rounded-2xl w-full col-span-12 lg:col-span-4 lg:bg-gray-300  lg:py-0'>
+                <div className='grid grid-cols-12 gap-3 lg:p-2 justify-center lg:flex rounded-2xl w-full col-span-12 lg:col-span-4 lg:bg-gray-300  lg:py-2'>
                   <button type="button" onClick={handleAddToCart} className='cursor-pointer rounded-xl lg:rounded-none py-[2px] lg:py-0 col-span-6 flex justify-center lg:block bg-gray-300 lg:bg-transparent w-full'> 
                     <ShoppingBag className="w-5 h-5 md:w-[25px] md:h-[25px] transition-all duration-300 scale-100 hover:scale-110 mx-auto" />
                   </button>

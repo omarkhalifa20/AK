@@ -11,7 +11,7 @@ import React, { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast';
 import Loader3 from '../Loader3/Loader3'
 import { useStore } from '@/useStore'
-
+import Link from 'next/link';
 import { useForm } from "react-hook-form";
 import { Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -216,9 +216,9 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
     <>
       <div className="w-full h-full flex flex-col">
         <div className="flex flex-col flex-grow h-full">
-          <div 
+          <Link 
+           href={`/product/${prod.id}`}
             className="flex flex-col flex-grow cursor-pointer group"
-            onClick={() => router.push(`/product/${prod.id}`)}
           >
             <div className="relative w-full aspect-square overflow-hidden rounded-xl z-10">
               <img 
@@ -235,7 +235,7 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
                 {prod.name}
               </h3>
             </div>
-          </div>
+          </Link>
 
           <div className='grid grid-cols-12 gap-2 justify-center lg:mx-auto items-center mt-auto mb-2'>
             {loading ? (
