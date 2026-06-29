@@ -8,17 +8,17 @@ export default function ChildsMain({products } : {products: Productmod[]}) {
     <>
 
     <div  className='container mx-auto w-[90%] min-h-screen pt-25 pb-15'>
-     <h3 className='text-center font-semibold mb-23 Orbitron text-[35px]'>Childs Clothes</h3>
+     <h3 className='text-center font-semibold mb-23 Orbitron text-[35px]'>Childs Shoes</h3>
      {products.length === 0 ? ( <p className='text-center text-[20px] text-[#616F7C] Playpen'>للاسف مفيش منتجات متاحه حالياً في هذا القسم</p>)
      :(<motion.div 
       initial={{ scale: 0.8, opacity: 0 }} 
       whileInView={{ scale: 1, opacity: 1 }}
       transition={{ duration: 1.7, ease: "easeIn" }}
       viewport={{ once: true }}
-      className='grid grid-cols-12 gap-19'>
+      className='grid grid-cols-12 gap-2'>
        {products.map((product) => (
        
-         <div key={product.id} className='col-span-3  '>
+         <div key={product.id} className='col-span-6 md:col-span-4 lg:col-span-3  '>
         <PorductCard  prod={product}/> 
        </div>
        

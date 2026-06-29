@@ -100,7 +100,7 @@ export default function ProductHome({ initialProducts, initialWishlist }: Produc
         {renderProductSection("Men's Products", "/mens", mensProducts)}
         {renderProductSection("Women's Products", "/womens", womensProducts)}
         {renderProductSection("Kids Products", "/childs", kidsProducts)}
-        {renderProductSection("Older Products", "/olds", oldsProducts)}
+     
 
       </div>
     </>
