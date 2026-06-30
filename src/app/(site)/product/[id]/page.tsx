@@ -7,7 +7,7 @@ export default function page() {
   
   return (
     <>
-     <h1>PRODUCT PAGE WORKS</h1>
+     <ProductDet />
     </>
   )
 }
