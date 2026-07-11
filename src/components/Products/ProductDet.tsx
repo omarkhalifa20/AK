@@ -61,7 +61,7 @@ const { user } = useAuth();
     details?: string;
     paymentMethod: string;
   };
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
     
     defaultValues: {
       fullname: "",
@@ -71,7 +71,7 @@ const { user } = useAuth();
       details: ""
     }
   });
-
+  const paymentMethodValue = watch("paymentMethod");
   useEffect(() => {
     async function GetProduct() {
       if (productId) {
@@ -373,8 +373,8 @@ const { user } = useAuth();
                               <Textarea {...register("details")} placeholder="ملاحظات إضافية" className='w-full focus-visible:border-2 focus-visible:border-black text-end border-[#6d6d6d]' />
                               <select 
                             {...register("paymentMethod", { required: "من فضلك اختر طريقة الدفع" })}
-                            className="w-full text-[#747474]  p-1 focus-visible:outline-none focus-visible:border-2 focus-visible:border-black text-end border border-[#6d6d6d] rounded-md bg-transparent cursor-pointer"
-                            defaultValue=""
+                           className={`w-full p-1 focus-visible:outline-none focus-visible:border-2 focus-visible:border-black text-end border border-[#6d6d6d] rounded-md bg-transparent cursor-pointer ${paymentMethodValue ? 'text-black font-medium' : 'text-[#747474]'}`}
+                           defaultValue="" 
                           >
                             <option className='' value="" disabled hidden>اختر طريقة الدفع</option>
                             <option className='text-black' value=" عند الاستلام">الدفع عند الاستلام</option>

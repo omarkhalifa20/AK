@@ -51,9 +51,10 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
     number2: string
     address: string
     details: string
+    paymentMethod: string
   }
   
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit,watch , formState: { errors } } = useForm<FormValues>({
     defaultValues: {
       fullname: "",
       number: "",
@@ -62,6 +63,7 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
       details: ""
     }
   });
+  const paymentMethodValue = watch("paymentMethod");
   const [cart, setCart] = useState<CartMod[]>([]);
   const [itemSelections, setItemSelections] = useState<{ [key: string]: { color: string, size: string }[] }>({});
 
@@ -175,6 +177,7 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
         address: data.address,
         details: data.details
       },
+      payment_method: data.paymentMethod,
       items: orderItems,
       total_amount: totalPrice, 
       order_date: new Date().toISOString()
@@ -481,7 +484,7 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
           <AlertDialogTrigger asChild>
             <Button disabled={cart.length === 0} className='bg-[#000] border-2 text-[15px] font-medium border-black Playpen cursor-pointer hover:bg-transparent hover:text-black duration-500 mt-9 w-[50%] mx-auto block text-white rounded-2xl disabled:opacity-50' variant="outline">أرسال الطلبات</Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className='Playpen max-h-[90vh] overflow-y-auto'>
+          <AlertDialogContent className='Playpen max-h-[90vh] overflow-y-auto mt-3'>
             <AlertDialogTitle className='mb-3 text-center'>تأكيد الطلب</AlertDialogTitle>
             {loading ? <Loader2/> :
               <form onSubmit={handleSubmit(onSubmit)}>
@@ -502,6 +505,17 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
                       {errors.address && <p className='text-red-500 text-sm mt-1 text-end'>{errors.address.message}</p>}
 
                       <Textarea {...register("details")} placeholder="تفاصيل اضافيه (اختياري)" className='w-full focus-visible:border-2 focus-visible:border-black text-end border-[#6d6d6d]' />
+                      <select 
+    {...register("paymentMethod", { required: "من فضلك اختر طريقة الدفع" })}
+    className={`w-full p-1 focus-visible:outline-none focus-visible:border-2 focus-visible:border-black text-end border border-[#6d6d6d] rounded-md bg-transparent cursor-pointer ${paymentMethodValue ? 'text-black font-medium' : 'text-[#747474]'}`}
+  defaultValue=""
+  >
+    <option className='' value="" disabled hidden>اختر طريقة الدفع</option>
+    <option className='text-black' value=" عند الاستلام">الدفع عند الاستلام</option>
+    <option className='text-black' value=" انستا باي">الدفع انستا باي</option>
+    <option className='text-black' value=" محفظه كاش">الدفع محفظه كاش</option>
+  </select>
+  {errors.paymentMethod && <p className='text-red-500 text-sm mt-1 text-end'>{errors.paymentMethod.message}</p>}
                     </AccordionContent>
                   </AccordionItem>
                   
