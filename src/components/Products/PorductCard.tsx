@@ -40,11 +40,20 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
   const router = useRouter();
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const { user } = useAuth();
-  
+  const [accordionValue, setAccordionValue] = useState("shipping");
   const [quantity, setQuantity] = useState(1);
   const [selections, setSelections] = useState<{ color: string, size: string }[]>([{ color: '', size: '' }]);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
+  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+    
+    defaultValues: {
+      fullname: "",
+      number: "",
+      number2: "",
+      address: "",
+      details: ""
+    }
+  });
   type FormValues = {
     fullname: string;
     number: string;
@@ -78,6 +87,11 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
     });
   };
   async function onDirectSubmit(data: FormValues) {
+    if (!data.fullname || !data.number || !data.address) {
+      toast.error("برجاء مراجعة واستكمال بيانات التواصل الأساسية");
+      setAccordionValue("shipping"); // هيفتح الأكورديون تلقائياً للمستخدم
+      return;
+    }
     const isSelectionComplete = selections.length === quantity && 
                                 selections.every(s => s.color !== '' && s.size !== '');
 
@@ -259,7 +273,7 @@ export default function PorductCard({prod, initialIsFavorite = false} : {prod:Pr
                 <AlertDialogTitle className='mb-3 text-center'>تأكيد الطلب </AlertDialogTitle>
                 {loading ? <Loader2 className="mx-auto animate-spin my-4" /> :
                   <form onSubmit={handleSubmit(onDirectSubmit)}>
-                    <Accordion type="single" collapsible defaultValue="shipping" className="max-w-lg ">
+                    <Accordion type="single" collapsible value={accordionValue} onValueChange={setAccordionValue} className="max-w-lg ">
                       
                       <AccordionItem value="shipping">
                         <AccordionTrigger>بيانات التواصل</AccordionTrigger>

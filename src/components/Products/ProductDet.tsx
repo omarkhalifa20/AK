@@ -49,7 +49,7 @@ const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  
+  const [accordionValue, setAccordionValue] = useState("shipping");
   const [quantity, setQuantity] = useState(1);
   const [selections, setSelections] = useState<{ color: string, size: string }[]>([{ color: '', size: '' }]);
 
@@ -61,7 +61,16 @@ const { user } = useAuth();
     details?: string;
     paymentMethod: string;
   };
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
+  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+    
+    defaultValues: {
+      fullname: "",
+      number: "",
+      number2: "",
+      address: "",
+      details: ""
+    }
+  });
 
   useEffect(() => {
     async function GetProduct() {
@@ -99,6 +108,11 @@ const { user } = useAuth();
   };
 
   async function onDirectSubmit(data: FormValues) {
+    if (!data.fullname || !data.number || !data.address) {
+      toast.error("برجاء مراجعة واستكمال بيانات التواصل الأساسية");
+      setAccordionValue("shipping"); 
+      return;
+    }
     if (!product) return;
 
     const isSelectionComplete = selections.length === quantity && 
@@ -218,6 +232,7 @@ const { user } = useAuth();
         const response = await AddToWishlist(product, user.id);
         if (response.success) {
           toast.success("تمت إضافة المنتج للمفضلة بنجاح!");
+          setLoading2(false);
           setIsFavorite(true);
           incrementWishlist();
         } else {
@@ -236,6 +251,7 @@ const { user } = useAuth();
         localStorage.setItem("guestWishlist", JSON.stringify(guestWishlist));
         
         toast.success("تمت إضافة المنتج للمفضلة بنجاح!");
+        setLoading2(false);
         setIsFavorite(true);
         incrementWishlist();
       }
@@ -333,7 +349,7 @@ const { user } = useAuth();
                     <AlertDialogTitle className='mb-3 text-center'>تأكيد الطلب </AlertDialogTitle>
                     {loading ? <Loader2 className="mx-auto animate-spin my-4" /> :
                       <form onSubmit={handleSubmit(onDirectSubmit)}>
-                        <Accordion type="single" collapsible defaultValue="shipping" className="max-w-lg ">
+                        <Accordion type="single" collapsible value={accordionValue} onValueChange={setAccordionValue} className="max-w-lg ">
                           
                           <AccordionItem value="shipping">
                             <AccordionTrigger>بيانات التواصل</AccordionTrigger>
