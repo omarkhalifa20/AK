@@ -228,7 +228,7 @@ const { user } = useAuth();
       
         if (isItemInWishlist) {
           toast.error("المنتج موجود بالفعل في المفضلة");
-          setLoading(false);
+          setLoading2(false);
           return; 
         }
         
@@ -240,6 +240,7 @@ const { user } = useAuth();
           incrementWishlist();
         } else {
           toast.error("حصلت مشكلة: " + response.error);
+          setLoading2(false);
         }
       } else {
         const guestWishlist = JSON.parse(localStorage.getItem("guestWishlist") || "[]");
@@ -247,6 +248,7 @@ const { user } = useAuth();
 
         if (isItemInWishlist || isFavorite) {
           toast.error("المنتج موجود بالفعل في المفضلة");
+          setLoading2(false);
           return;
         }
 
