@@ -13,27 +13,15 @@ export default function ContactsHome() {
        whileInView={{ opacity: 1 }}
        transition={{ duration: 2, ease: "easeIn"}}
        viewport={{ once: true }}
-      className='container  backdrop-blur-[8px] rounded-3xl bg-[#ffffff18] w-[90%] mx-auto px-20 py-10'>
-        <div className='grid grid-cols-12 gap-9'>
-           <motion.div
-            initial={{ x:-150 , opacity: 0 }} 
-            whileInView={{ x:0, opacity: 1 }}
-            transition={{ duration: 2, ease: "easeIn"}}
-            viewport={{ once: true }}
-            className='col-span-6 flex  '>
-          <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d5087.904229758931!2d30.12451938157551!3d31.141569378288985!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2seg!4v1770297997758!5m2!1sen!2seg"  className='rounded-2xl min-h-120 w-full'  style={{border: 0}} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-         </motion.div>
+      className='container  backdrop-blur-[8px] rounded-3xl bg-[#ffffff18] w-[90%] mx-auto p-10'>
+        
          <motion.div 
           initial={{ x:150 , opacity: 0 }} 
           whileInView={{ x:0, opacity: 1 }}
           transition={{ duration: 2, ease: "easeIn"}}
           viewport={{ once: true }}
-         className='col-span-6 flex flex-col text-white justify-start     '>
-           <h3 className=' text-center mb-5  text-[35px] font-bold Orbitron'>Contacts Us</h3>
-           
-           <p className='mb-2 Marhey'>Address : Ahmed Orabi St - Elmezana - Kafr Eldwwar - Behira</p>
-           <p className='mb-12 Marhey'>Phone : 01000000000</p>
-            
+         className=' flex flex-col text-white  items-center justify-center'>  
+         
           <h3 className='text-[20px] text-center font-bold Orbitron'>Our Social Media</h3>
 
            <div className='grid grid-cols-12  gap-7 mt-5'>
@@ -86,18 +74,18 @@ export default function ContactsHome() {
            </div>
 
            </div>
-            <p className='text-center mt-25 text-[17px] font-bold Orbitron '>Get in touch with us — we’re always here to help and connect.</p>
+            <p className='text-center mt-4 text-[17px] font-bold Orbitron '>Get in touch with us — we’re always here to help and connect.</p>
          </motion.div> 
 
          
 
-
+         </motion.div>
 
 
         </div>
          
-      </motion.div>
-    </div>
+      
+   
     </>
   )
 }
