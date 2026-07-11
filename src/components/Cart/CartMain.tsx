@@ -377,15 +377,15 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
         </button>
 
        
-        <div className="flex gap-4  items-center rtl:flex-row-reverse">
+        <div className="flex gap-4 Playpen  items-center rtl:flex-row-reverse">
        
           <div className="w-[85px] h-[85px] flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden shadow-sm">
             <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
           </div>
 
        
-          <div className="flex-1 flex flex-col items-center justify-center mt-2">
-            <h3 className="text-[15px] font-semibold text-[#2D2D2D] leading-tight mb-2 line-clamp-2 pr-5 text-right">
+          <div className="flex-1 flex flex-col items-center  justify-center mt-2">
+            <h3 className="text-[15px] font-semibold text-[#2D2D2D] leading-tight mb-2 line-clamp-2  text-right">
               {item.name}
             </h3>
             <p className="text-[17px] font-bold text-[#635BFF] text-right">

@@ -114,8 +114,8 @@ export default function WishlistMain({wishlistdata} : {wishlistdata:Wishlistmod[
       <div className='container w-[90%] mx-auto '>
         <h3 className='text-center font-bold mb-8 text-[29px] Playpen pt-5'>Your Wishlist</h3>
         
-        <div className={`border border-[#B8C2CC] rounded-2xl shadow-md overflow-hidden transition-opacity duration-300 ${isPending ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
-          <Table className='bg-white Playpen text-[15px]'>
+        <div className={`lg:border lg:border-[#B8C2CC] rounded-2xl shadow-md overflow-hidden transition-opacity duration-300 ${isPending ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
+        <Table className='bg-white Playpen text-[15px] hidden lg:table'>
             <TableHeader className='bg-[#F0F3F6]'>
               <TableRow>
                 <TableCell className="text-center"></TableCell>
@@ -171,7 +171,65 @@ export default function WishlistMain({wishlistdata} : {wishlistdata:Wishlistmod[
               </TableRow>
             </TableFooter>
           </Table>
+          
         </div>
+        <div className='lg:hidden flex flex-col gap-4 mt-4'>
+  {wishlist.length === 0 ? (
+    <div className="text-center py-5 font-bold text-black bg-white rounded-2xl shadow-sm border border-gray-100">
+      المفضله فارغة 🛒 .. برجاء إضافة منتجات أولاً!
+    </div>
+  ) : (
+    wishlist.map((item) => (
+      <div key={item.id} className="bg-white rounded-[20px] p-4 pt-10 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-4 relative border border-gray-50">
+        
+        {/* زر الحذف */}
+        <button
+          onClick={() => handleDelete(item.id)}
+          className="absolute top-2 right-2 text-red-500 p-1.5 bg-red-50 rounded-full hover:bg-red-100 transition-colors z-10 cursor-pointer"
+        >
+          <X size={13} />
+        </button>
+
+        <div className="flex gap-4 items-center rtl:flex-row-reverse">
+          {/* الصورة */}
+          <div className="w-[85px] h-[85px] flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden shadow-sm">
+            <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
+          </div>
+
+          {/* تفاصيل المنتج */}
+          <div className="flex-1 flex flex-col items-end justify-center mt-2">
+            <h3 className="text-[15px] font-semibold text-[#2D2D2D] leading-tight mb-2 line-clamp-2 text-right">
+              {item.name}
+            </h3>
+            <p className="text-[17px] font-bold text-[#1A1A1A] text-right">
+              {item.price} EGP
+            </p>
+          </div>
+        </div>
+
+        {/* الجزء السفلي: الحالة وزر الإضافة للسلة */}
+        <div className="flex flex-col gap-3 pt-3 border-t border-gray-100 mt-1">
+          <div className="flex justify-between items-center px-1">
+            <span className="text-[12px] font-bold text-gray-500">
+              {item.Products?.status === 'متاح' || !user ? (
+                <span className='text-green-600 flex items-center gap-1'><BadgeCheck size={14}/> متاح</span>
+              ) : (
+                <span className='text-red-600 flex items-center gap-1'><BadgeX size={14}/> غير متاح</span>
+              )}
+            </span>
+          </div>
+          
+          <button 
+            onClick={() => handleAddToCart(item)} 
+            className='flex items-center justify-center w-full hover:bg-transparent hover:text-black border-2 duration-300 border-black py-2.5 px-3 gap-2 rounded-xl text-white bg-black cursor-pointer text-[14px] font-medium'
+          >
+            <ShoppingBag size={18} /> أضف إلي السلة 
+          </button>
+        </div>
+      </div>
+    ))
+  )}
+</div>
       </div>
     </>
   )
