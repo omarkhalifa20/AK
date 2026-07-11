@@ -184,6 +184,7 @@ const { user } = useAuth();
         const response = await AddCart(product, user.id);
         if (response.success) {
           toast.success("تمت إضافة المنتج للسلة بنجاح!");
+          setLoading(false);
           incrementCart();
         } else {
           toast.error("حصلت مشكلة: " + response.error);
@@ -194,13 +195,14 @@ const { user } = useAuth();
 
         if (isItemInCart) {
           toast.error("المنتج موجود بالفعل في السلة (يمكنك تحديد التفاصيل من داخل السلة)");
+          setLoading(false);
           return;
         }
 
         guestCart.push({ ...product, quantity: 1 });
         localStorage.setItem("guestCart", JSON.stringify(guestCart));
-        
         toast.success("تمت إضافة المنتج للسلة بنجاح!");
+        setLoading(false);
         incrementCart();
       }
     } catch (error) {
@@ -226,6 +228,7 @@ const { user } = useAuth();
       
         if (isItemInWishlist) {
           toast.error("المنتج موجود بالفعل في المفضلة");
+          setLoading(false);
           return; 
         }
         
