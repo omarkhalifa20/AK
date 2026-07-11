@@ -43,6 +43,7 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
   const router = useRouter();
   const { user } = useAuth();
   const { setInitialCounts, wishlistCount } = useStore(); 
+  const [accordionValue, setAccordionValue] = useState("shipping");
   
   type FormValues = {
     fullname: string
@@ -52,7 +53,15 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
     details: string
   }
   
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>()
+  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+    defaultValues: {
+      fullname: "",
+      number: "",
+      number2: "",
+      address: "",
+      details: ""
+    }
+  });
   const [cart, setCart] = useState<CartMod[]>([]);
   const [itemSelections, setItemSelections] = useState<{ [key: string]: { color: string, size: string }[] }>({});
 
@@ -133,6 +142,11 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
   const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   
   async function onSubmit(data:FormValues) {
+    if (!data.fullname || !data.number || !data.address) {
+      toast.error("برجاء مراجعة واستكمال بيانات التواصل الأساسية");
+      setAccordionValue("shipping"); 
+      return;
+    }
     const orderItems = cart.map((item) => ({
       product_id: item.product_id || item.id, 
       product_name: item.name,
@@ -352,9 +366,9 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
     const uniqueColors = Array.from(new Set(item.variants?.map(v => v.color) || []));
 
     return (
-      <div key={item.id} className="bg-white rounded-[20px] p-4 pt-10 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-4 relative border border-gray-50">
+      <div key={item.id} className="bg-white rounded-[20px] border  p-4 pt-10 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-4 relative  border-[#b1adff]">
         
-        {/* زر الحذف */}
+        
         <button
           onClick={() => handleDelete(item.id)}
           className="absolute top-2 right-2  text-red-500 p-1.5 bg-red-50 rounded-full hover:bg-red-100 transition-colors z-10 cursor-pointer"
@@ -364,17 +378,17 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
 
        
         <div className="flex gap-4  items-center rtl:flex-row-reverse">
-          {/* الصورة */}
+       
           <div className="w-[85px] h-[85px] flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden shadow-sm">
             <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
           </div>
 
-          {/* تفاصيل المنتج */}
+       
           <div className="flex-1 flex flex-col items-center justify-center mt-2">
             <h3 className="text-[15px] font-semibold text-[#2D2D2D] leading-tight mb-2 line-clamp-2 pr-5 text-right">
               {item.name}
             </h3>
-            <p className="text-[17px] font-bold text-[#1A1A1A] text-right">
+            <p className="text-[17px] font-bold text-[#635BFF] text-right">
               {item.price * item.quantity} EGP
             </p>
           </div>
@@ -472,7 +486,7 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
             <AlertDialogTitle className='mb-3 text-center'>تأكيد الطلب</AlertDialogTitle>
             {loading ? <Loader2/> :
               <form onSubmit={handleSubmit(onSubmit)}>
-                <Accordion type="single" collapsible defaultValue="shipping" className="max-w-lg ">
+                <Accordion type="single" collapsible value={accordionValue} onValueChange={setAccordionValue} className="max-w-lg ">
                   
                   <AccordionItem value="shipping">
                     <AccordionTrigger>بيانات التواصل</AccordionTrigger>
