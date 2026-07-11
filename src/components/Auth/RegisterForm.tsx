@@ -57,7 +57,7 @@ export default function RegisterForm() {
 
   return (
     <>
-    <form className="form mt-9" onSubmit={handleSubmit(onSubmit)}>
+    <form className="form mt-9 !w-[100%] lg:!w-[700px]" onSubmit={handleSubmit(onSubmit)}>
   <p className="title">Sign Up</p>
   <p className="message mb-4">Sign Up now and get full access to our app. </p>
   

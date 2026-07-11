@@ -21,7 +21,7 @@ export async function AddToWishlist(product: Productmod , userId: string) {
         console.error("Error adding to cart:", error)
         return { success: false, error: error.message } 
     }
-    
+    revalidatePath('/wishlist'); 
     return { success: true, data }
 
 }

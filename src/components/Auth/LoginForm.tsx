@@ -47,7 +47,7 @@ export default function LoginForm() {
     <>
         <div className='container mx-auto flex items-center justify-center w-[90%] min-h-screen'>
     
-    <form onSubmit={handleSubmit(onSubmit)} className="form">
+    <form onSubmit={handleSubmit(onSubmit)} className="form !w-[100%] lg:!w-[700px]">
       <p className="title">Login </p>
       <p className="message mb-4">Login now and get full access to our app. </p>
      <div className='flex flex-col gap-4 mb-2'>

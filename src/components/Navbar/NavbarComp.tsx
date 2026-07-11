@@ -235,24 +235,37 @@ export default function NavbarComp({ initialCart, initialWishlist }: ProductHome
                 <UserRound className="w-[20px] md:w-[32px]" />
               </PopoverTrigger>
               <PopoverContent className="p-2 z-[99999999] w-45 md:w-50 mt-5 mr-4">
-                <div className="flex Orbitron flex-col z-50 mb-2 p-2 rounded-lg border border-[#999999] bg-[#ececec41] items-center">
-                  <CircleUserRound className="mb-2" />
-                  <p className="text-[12px] md:text-[16px] text-center font-medium">
-                    Hi ! <br /> {userName?.split(" ").slice(0, 2).join(" ")}
-                  </p>
-                </div>
+  {user ? (
+    <>
+      <div className="flex Orbitron flex-col z-50 mb-2 p-2 rounded-lg border border-[#999999] bg-[#ececec41] items-center">
+        <CircleUserRound className="mb-2" />
+        <p className="text-[12px] md:text-[16px] text-center font-medium">
+          Hi ! <br /> {userName?.split(" ").slice(0, 2).join(" ")}
+        </p>
+      </div>
 
-                <div className="flex flex-col Orbitron font-medium gap-2">
-                  {role === 'admin' && (
-                    <Link href="/dashboard" className="block text-center cursor-pointer text-[12px] md:text-[14px] py-1 bg-transparent border border-[#999999] hover:bg-[#f1f1f1] hover:text-black duration-400 rounded-lg">
-                      Dashboard
-                    </Link>
-                  )}
-                  <button onClick={handleLogout} className="cursor-pointer text-center text-[12px] md:text-[14px] py-1 bg-transparent border border-[#999999] hover:bg-[#f1f1f1] hover:text-black duration-400 rounded-lg">
-                    LogOut
-                  </button>
-                </div>
-              </PopoverContent>
+      <div className="flex flex-col Orbitron font-medium gap-2">
+        {role === 'admin' && (
+          <Link href="/dashboard" className="block text-center cursor-pointer text-[12px] md:text-[14px] py-1 bg-transparent border border-[#999999] hover:bg-[#f1f1f1] hover:text-black duration-400 rounded-lg">
+            Dashboard
+          </Link>
+        )}
+        <button onClick={handleLogout} className="cursor-pointer text-center text-[12px] md:text-[14px] py-1 bg-transparent border border-[#999999] hover:bg-[#f1f1f1] hover:text-black duration-400 rounded-lg">
+          LogOut
+        </button>
+      </div>
+    </>
+  ) : (
+    <div className='flex flex-col Orbitron font-medium gap-2'>
+      <Link href='/login' className='block py-1 text-[12px] md:text-[14px] bg-transparent border text-center border-[#999999] hover:bg-[#f1f1f1] hover:text-black duration-400 rounded-lg'>
+        LogIn
+      </Link>
+      <Link href='/register' className='block py-1 text-[12px] md:text-[14px] bg-transparent text-center border border-[#999999] hover:bg-[#f1f1f1] hover:text-black duration-400 rounded-lg'>
+        Register
+      </Link>
+    </div>
+  )}
+</PopoverContent>
             </Popover>
           
         </div>

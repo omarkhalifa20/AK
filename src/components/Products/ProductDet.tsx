@@ -36,15 +36,18 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import Loader3 from '../Loader3/Loader3'; 
+import { useAuth } from '@/app/(site)/(auth)/useAuth';
+import { AddOrders } from '@/Action/Orders';
 
 export default function ProductDet() {
   const { incrementCart, incrementWishlist } = useStore();
   const router = useRouter();
   const params = useParams();
   const productId = params.id as string;
-
+const { user } = useAuth();
   const [product, setProduct] = useState<Productmod | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   
   const [quantity, setQuantity] = useState(1);
@@ -56,6 +59,7 @@ export default function ProductDet() {
     number2?: string;
     address: string;
     details?: string;
+    paymentMethod: string;
   };
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
 
@@ -104,31 +108,35 @@ export default function ProductDet() {
       toast.error("برجاء اختيار اللون والمقاس لكل قطعة في المنتج المطلوب");
       return;
     }
+    const finalOrder = {
+      customer_info: {
+        name: data.fullname,
+        phone: Number(data.number),
+        phone2: Number(data.number2),
+        address: data.address,
+        details: data.details|| ""
+        
+      },
+      payment_method: data.paymentMethod, 
 
+      items: [{
+        product_id: product.id,
+        product_name: product.name,
+        quantity: quantity, 
+        price_per_unit: product.price,
+        subtotal: product.price * quantity,
+        details: selections,
+        image: product.images[0]
+      }],
+      total_amount: product.price * quantity,
+      order_date: new Date().toISOString()
+    };
     try {
       setLoading(true);
       
-      const finalOrder = {
-        customer_info: {
-          name: data.fullname,
-          phone: Number(data.number),
-          phone2: Number(data.number2),
-          address: data.address,
-          details: data.details
-        },
-        items: [{
-          product_id: product.id,
-          product_name: product.name,
-          quantity: quantity, 
-          price_per_unit: product.price,
-          subtotal: product.price * quantity,
-          details: selections,
-          image: product.images[0]
-        }],
-        total_amount: product.price * quantity,
-        order_date: new Date().toISOString()
-      };
-
+    
+ const userIdToPass = user ? user.id : null;
+      const response = await AddOrders(finalOrder, userIdToPass, "Orders_Waiting");
       console.log("Order Data:", finalOrder);
       toast.success("تم تأكيد طلبك بنجاح!");
       
@@ -194,7 +202,7 @@ export default function ProductDet() {
       return;
     }
 
-    setLoading(true);
+    setLoading2(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
@@ -240,7 +248,7 @@ export default function ProductDet() {
   
   return (
     <>
-    <div className='container mx-auto w-[90%] min-h-screen pt-15 lg:pt-0 flex items-center justify-center'>
+    <div className='container mx-auto w-[90%] min-h-screen pt-15 lg:pt-5 flex items-center justify-center'>
      <div className='lg:p-6 mt-5 grid grid-cols-12 w-full gap-5'>
       
       <div className='col-span-12 lg:col-span-4 flex items-center'>
@@ -259,10 +267,10 @@ export default function ProductDet() {
 
       <div className='col-span-12 lg:col-span-8 lg:px-5 flex flex-col text-center'>
         
-        <div className='flex Orbitron mb-7 text-[14px] font-medium items-center justify-center gap-1 lg:gap-9'>
+        <div className='grid grid-cols-12 Orbitron mb-7 text-[14px] font-medium items-center justify-center gap-1 lg:gap-9'>
           {product && Array.isArray(product?.category) ? (
             product?.category.map((cat: string, index: number) => (
-              <p key={index} className='py-[1px] bg-[#ffffff33] capitalize px-5 rounded-3xl border border-black'>{cat}</p>
+              <p key={index} className='py-[1px] bg-[#ffffff33] capitalize col-span-6 lg:col-span-3 px-5 rounded-3xl border border-black'>{cat}</p>
             ))
           ) : (
             <p className='py-[1px] px-5 rounded-3xl capitalize border border-black'>{product?.category?.[0]}</p>
@@ -307,17 +315,12 @@ export default function ProductDet() {
           )}
         </div>
         
-        {/* ========================================= */}
-        {/* الثلاث زراير بنفس تصميم وشكل الـ ProductCard */}
-        {/* ========================================= */}
+        
         <div className='flex flex-col items-end px-5'>
           <div className='grid grid-cols-12 gap-2 justify-center lg:mx-auto items-center mt-auto w-full'>
-            {loading ? (
-              <div className="col-span-12 flex justify-center"><Loader3 /></div>
-            ) : (
-              <>
+            
                 <AlertDialog>
-                  <AlertDialogTrigger className='col-span-12 lg:col-span-8' asChild>
+                  <AlertDialogTrigger className='col-span-12 ' asChild>
                     <Button 
                       className='bg-[#000] border-2 text-[15px] font-medium border-black Playpen cursor-pointer w-full hover:bg-transparent hover:text-black transition-colors duration-500 mx-auto block text-white rounded-2xl ' 
                       variant="outline"
@@ -347,6 +350,19 @@ export default function ProductDet() {
                               {errors.address && <p className='text-red-500 text-sm mt-1 text-end'>{errors.address.message as string}</p>}
 
                               <Textarea {...register("details")} placeholder="ملاحظات إضافية" className='w-full focus-visible:border-2 focus-visible:border-black text-end border-[#6d6d6d]' />
+                              <select 
+                            {...register("paymentMethod", { required: "من فضلك اختر طريقة الدفع" })}
+                            className="w-full text-[#747474]  p-1 focus-visible:outline-none focus-visible:border-2 focus-visible:border-black text-end border border-[#6d6d6d] rounded-md bg-transparent cursor-pointer"
+                            defaultValue=""
+                          >
+                            <option className='' value="" disabled hidden>اختر طريقة الدفع</option>
+                            <option className='text-black' value=" عند الاستلام">الدفع عند الاستلام</option>
+                            <option className='text-black' value=" انستا باي">الدفع انستا باي</option>
+                            <option className='text-black' value=" محفظه كاش">الدفع محفظه كاش</option>
+                          </select>
+                          {errors.paymentMethod && <p className='text-red-500 text-sm mt-1 text-end'>{errors.paymentMethod.message as string}</p>}
+
+                            
                             </AccordionContent>
                           </AccordionItem>
                           
@@ -423,21 +439,32 @@ export default function ProductDet() {
                   </AlertDialogContent>
                 </AlertDialog>
 
-                <div className='grid grid-cols-12 gap-3 lg:p-2 justify-center lg:flex rounded-2xl w-full col-span-12 lg:col-span-4 lg:bg-gray-300  lg:py-2'>
-                  <button type="button" onClick={handleAddToCart} className='cursor-pointer rounded-xl lg:rounded-none py-[2px] lg:py-0 col-span-6 flex justify-center lg:block bg-gray-300 lg:bg-transparent w-full'> 
-                    <ShoppingBag className="w-5 h-5 md:w-[25px] md:h-[25px] transition-all duration-300 scale-100 hover:scale-110 mx-auto" />
-                  </button>
+                <div className='grid grid-cols-12 gap-3 Playpen font-medium  justify-center  rounded-2xl w-full col-span-12   '>
+                <button type="button" onClick={handleAddToCart} className='cursor-pointer bg-gray-300 rounded-xl py-1 col-span-12 lg:col-span-6 flex items-center justify-center gap-2 w-full'> 
+                {loading ? (
+              <div className="col-span-12 flex justify-center"><Loader3 /></div>
+            ) : (<>
+            <ShoppingBag className="w-5 h-5 md:w-[25px] md:h-[25px] transition-all duration-300 scale-100 hover:scale-110" />
+            اضف الى السلة
+            </>)}
+    
+  </button>
                   
-                  <button type="button" onClick={handleAddToWishlist} className='cursor-pointer rounded-xl lg:rounded-none py-[2px] lg:py-0 flex justify-center lg:block bg-gray-300 lg:bg-transparent col-span-6 w-full'>
-                    <Heart 
-                      className={`w-5 h-5 md:w-[25px] md:h-[25px] transition-all duration-300 mx-auto ${isFavorite ? 'scale-110' : 'hover:scale-110'}`} 
-                      fill={isFavorite ? "red" : "none"}
-                      color={isFavorite ? "red" : "currentColor"} 
-                    />
-                  </button>
+  <button type="button" onClick={handleAddToWishlist} className='cursor-pointer bg-gray-300 rounded-xl py-1 flex items-center justify-center gap-2 col-span-12 lg:col-span-6 w-full'>
+  {loading2 ? (
+              <div className="col-span-12 flex justify-center"><Loader3 /></div>
+            ) : (<>
+            <Heart 
+      className={`w-5 h-5 md:w-[25px] md:h-[25px] transition-all duration-300 ${isFavorite ? 'scale-110' : 'hover:scale-110'}`} 
+      fill={isFavorite ? "red" : "none"}
+      color={isFavorite ? "red" : "currentColor"} 
+    />
+    اضف الى المفضلة
+            </>)}
+    
+  </button>
                 </div>
-              </>
-            )}
+            
           </div>
           <p className='text-gray-500 text-[13px] Playpen mt-3 text-right w-full'>* يمكنك تحديد المقاس واللون المناسب لك من داخل طلب الشراء.</p>
         </div>

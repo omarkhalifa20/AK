@@ -36,6 +36,7 @@ import { useRouter } from 'next/navigation';
 import Loader2 from '../Loader2/Loader2'
 import { useAuth } from '@/app/(site)/(auth)/useAuth'; 
 import { useStore } from '@/useStore'; 
+import CartCard from './CartCard'
 
 export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
   const [loading, setLoading] = useState(false)
@@ -84,7 +85,6 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
         return item;
       });
 
-      // لو ضيف، احفظ التعديل في المتصفح عشان الكمية متضيعش مع الريفرش
       if (!user) {
         localStorage.setItem("guestCart", JSON.stringify(newCart));
       }
@@ -134,7 +134,7 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
   
   async function onSubmit(data:FormValues) {
     const orderItems = cart.map((item) => ({
-      product_id: item.product_id || item.id, // item.id للضيوف، product_id للمسجلين
+      product_id: item.product_id || item.id, 
       product_name: item.name,
       quantity: item.quantity,
       price_per_unit: item.price,
@@ -168,21 +168,18 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
 
     try {
       setLoading(true);
-      // لو العميل ضيف هنبعت user.id بـ null (تأكد إن دالة AddOrders عندك بتقبل ده)
       const userIdToPass = user ? user.id : null;
       const response = await AddOrders(finalOrder, userIdToPass, "Orders_Waiting");
       
       if (response.success) {
         toast.success("تم تأكيد طلبك بنجاح!");
         
-        // تفريغ السلة بناءً على نوع العميل
         if (user) {
           await clearUserCart(); 
         } else {
           localStorage.removeItem("guestCart");
         }
         
-        // تصفير عداد الناف بار
         setInitialCounts(0, wishlistCount); 
         router.push('/');
       } else {
@@ -196,7 +193,6 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
     }
   }
 
-  // 4. حذف منتج من السلة 
   const handleDelete = async (itemId: string) => {
     const previousCart = [...cart];
     const newCart = cart.filter(item => item.id !== itemId);
@@ -211,11 +207,9 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
         return;
       }
     } else {
-      // لو ضيف، نحذفه من اللوكال ستورج
       localStorage.setItem("guestCart", JSON.stringify(newCart));
     }
     
-    // تحديث العداد في الناف بار فوراً
     setInitialCounts(newCart.length, wishlistCount);
   };
 
@@ -224,8 +218,8 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
       <div className='container w-[90%] mx-auto  '>
         <h3 className='text-center font-bold mb-8 text-[29px] Playpen '>Your Cart</h3>
         
-        <div className=' border border-[#B8C2CC] rounded-2xl shadow-md overflow-hidden'>
-          <Table className='bg-white Playpen text-[15px]'>
+        <div className=' lg:border lg:border-[#B8C2CC] rounded-2xl shadow-md overflow-hidden'>
+          <Table className='bg-white Playpen text-[15px] hidden lg:table'>
             <TableHeader className='bg-[#F0F3F6] '>
               <TableRow >
                 <TableHead className="text-center"></TableHead>
@@ -349,7 +343,126 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
               </TableRow>
             </TableFooter>
           </Table>
+
+          
         </div>
+
+        <div className='lg:hidden flex flex-col gap-4 mt-4'>
+  {cart.map((item) => {
+    const uniqueColors = Array.from(new Set(item.variants?.map(v => v.color) || []));
+
+    return (
+      <div key={item.id} className="bg-white rounded-[20px] p-4 pt-10 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-4 relative border border-gray-50">
+        
+        {/* زر الحذف */}
+        <button
+          onClick={() => handleDelete(item.id)}
+          className="absolute top-2 right-2  text-red-500 p-1.5 bg-red-50 rounded-full hover:bg-red-100 transition-colors z-10 cursor-pointer"
+        >
+          <X size={13} />
+        </button>
+
+       
+        <div className="flex gap-4  items-center rtl:flex-row-reverse">
+          {/* الصورة */}
+          <div className="w-[85px] h-[85px] flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden shadow-sm">
+            <img src={item.images[0]} alt={item.name} className="w-full h-full object-cover" />
+          </div>
+
+          {/* تفاصيل المنتج */}
+          <div className="flex-1 flex flex-col items-center justify-center mt-2">
+            <h3 className="text-[15px] font-semibold text-[#2D2D2D] leading-tight mb-2 line-clamp-2 pr-5 text-right">
+              {item.name}
+            </h3>
+            <p className="text-[17px] font-bold text-[#1A1A1A] text-right">
+              {item.price * item.quantity} EGP
+            </p>
+          </div>
+
+         
+          <div className="flex flex-col items-center gap-1.5 bg-[#F8F7FF] p-1.5 rounded-[14px]">
+            <button
+              onClick={() => updateQuantity(item.id, 'plus')}
+              className="w-5 h-5 rounded-[10px] bg-[#EAE8FF] text-[#635BFF] flex items-center justify-center font-bold text-lg cursor-pointer hover:bg-[#DED9FF] transition-colors"
+            >
+              +
+            </button>
+            <span className="font-bold text-[12px] text-[#635BFF]">{item.quantity}</span>
+            <button
+              onClick={() => updateQuantity(item.id, 'minus')}
+              disabled={item.quantity <= 1}
+              className="w-5 h-5 rounded-[10px] bg-[#EAE8FF] text-[#635BFF] flex items-center justify-center font-bold text-lg cursor-pointer hover:bg-[#DED9FF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              -
+            </button>
+          </div>
+        </div>
+
+        
+        <div className="flex flex-col gap-2 pt-3 border-t border-gray-100 mt-1">
+          <div className="flex justify-between items-center px-1 mb-1">
+            <span className="text-[12px] font-bold text-gray-500">
+              {item.Products?.status === 'متاح' || !user ? (
+                 <span className='text-green-600 flex items-center gap-1'><BadgeCheck size={14}/> متاح</span>
+               ) : (
+                 <span className='text-red-600 flex items-center gap-1'><BadgeX size={14}/> غير متاح</span>
+               )}
+            </span>
+            <span className="text-[13px] font-bold text-gray-800">الألوان والمقاسات:</span>
+          </div>
+
+          {Array.from({ length: item.quantity }).map((_, index) => {
+            const currentColor = itemSelections[item.id]?.[index]?.color || "";
+            const availableSizesForColor = item.variants
+              ?.filter(v => v.color === currentColor)
+              .map(v => v.size) || [];
+
+            return (
+              <div key={index} className="flex flex-row-reverse items-center justify-between gap-2 bg-[#f8f9fa] p-2.5 rounded-xl border border-[#e2e8f0]">
+                <span className="text-[11px] font-bold text-gray-500 whitespace-nowrap bg-white border border-gray-200 px-2 py-1.5 rounded-md">
+                  قطعة {index + 1}
+                </span>
+
+                <div className="flex gap-2 w-full justify-end">
+                  <select
+                    value={itemSelections[item.id]?.[index]?.size || ""}
+                    onChange={(e) => handleSelectionChange(item.id, index, 'size', e.target.value)}
+                    disabled={!currentColor}
+                    className="text-[12px] border border-gray-200 rounded-lg py-1.5 px-2 outline-none focus:ring-1 focus:ring-[#635BFF] w-[48%] text-center cursor-pointer disabled:opacity-50 bg-white"
+                  >
+                    <option value="" disabled>المقاس</option>
+                    {availableSizesForColor.map(s => {
+                      const remaining = getAvailableQuantity(item.id, currentColor, s as string, index);
+                      const isDisabled = remaining <= 0;
+                      return (
+                        <option key={s as string} value={s as string} disabled={isDisabled}>
+                          {s as string} {isDisabled ? '(نفدت)' : ''}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  <select
+                    value={currentColor}
+                    onChange={(e) => handleSelectionChange(item.id, index, 'color', e.target.value)}
+                    className="text-[12px] border border-gray-200 rounded-lg py-1.5 px-2 outline-none focus:ring-1 focus:ring-[#635BFF] w-[48%] text-center cursor-pointer bg-white"
+                  >
+                    <option value="" disabled>اللون</option>
+                    {uniqueColors.map(c => (
+                      <option key={c as string} value={c as string}>{c as string}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -433,6 +546,8 @@ export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
             }
           </AlertDialogContent>
         </AlertDialog>
+        
+       
       </div>
     </>
   )

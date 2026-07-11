@@ -5,7 +5,7 @@ export interface FinalOrder {
       phone: number;
       phone2: number; 
       address: string;
-      details: string;
+      details: string ;
     };
     items: {
       product_id: string;
