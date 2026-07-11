@@ -36,7 +36,7 @@ import { useRouter } from 'next/navigation';
 import Loader2 from '../Loader2/Loader2'
 import { useAuth } from '@/app/(site)/(auth)/useAuth'; 
 import { useStore } from '@/useStore'; 
-import CartCard from './CartCard'
+
 
 export default function CartMain({cartdata} : {cartdata:CartMod[]}) {
   const [loading, setLoading] = useState(false)
