@@ -20,8 +20,6 @@ import { deleteOrderPermanently, moveOrderToDone, moveOrderToWaiting } from '@/A
 import { DashboardOrder } from '@/Types/DashboardOrder' 
 import Loader2 from '../Loader2/Loader2'
 
-
-
 interface DashOrderProps {
   doneOrders: DashboardOrder[];
   waitingOrders: DashboardOrder[];
@@ -33,7 +31,6 @@ export default function OrderDash({ waitingOrders, doneOrders }: DashOrderProps)
   
   const [selectedOrder, setSelectedOrder] = useState<DashboardOrder | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const [isPending, startTransition] = useTransition();
 
   const handleMoveToDone = (order: DashboardOrder) => {
@@ -46,7 +43,6 @@ export default function OrderDash({ waitingOrders, doneOrders }: DashOrderProps)
         toast.error("حدث خطأ أثناء نقل الطلب");
         setDone(prev => prev.filter(o => o.id !== order.id));
         setWaiting(prev => [order, ...prev]);
-        console.log("Error moving order to done:", res.error);
       } else {
         toast.success("تم نقل الطلب إلى قائمة المسلّمة");
       }
@@ -63,7 +59,6 @@ export default function OrderDash({ waitingOrders, doneOrders }: DashOrderProps)
         toast.error("حدث خطأ أثناء إرجاع الطلب");
         setWaiting(prev => prev.filter(o => o.id !== order.id));
         setDone(prev => [order, ...prev]);
-        console.log("Error moving order to waiting:", res.error);
       } else {
         toast.success("تم إرجاع الطلب إلى قيد الانتظار");
       }
@@ -78,11 +73,8 @@ export default function OrderDash({ waitingOrders, doneOrders }: DashOrderProps)
     
     if (!orderToDelete) return;
 
-    if (isWaiting) {
-      setWaiting(prev => prev.filter(o => o.id !== orderId));
-    } else {
-      setDone(prev => prev.filter(o => o.id !== orderId));
-    }
+    if (isWaiting) setWaiting(prev => prev.filter(o => o.id !== orderId));
+    else setDone(prev => prev.filter(o => o.id !== orderId));
 
     startTransition(async () => {
       const res = await deleteOrderPermanently(orderId, table);
@@ -109,161 +101,204 @@ export default function OrderDash({ waitingOrders, doneOrders }: DashOrderProps)
 
   return (
     <>
-    
-    {isPending && (
+      {isPending && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#ffffff33] backdrop-blur-[1px]">
-        <div className="scale-130"> 
-          <Loader2 />
+          <div className="scale-130"><Loader2 /></div>
         </div>
-      </div>
       )}
-      <div className='container pt-4 w-[90%] mx-auto '>
-        
+      
+      <div className='container pt-4 w-[95%] md:w-[90%] mx-auto pb-28 md:pb-10'>
         
         <div className='mb-6'>
           <h3 className='text-center text-[24px] Playpen font-medium pt-5 mb-6'>طلبات قيد الانتظار</h3>
         </div>
         
-        
-        <div className='relative border border-[#B8C2CC] rounded-2xl shadow-md overflow-hidden mb-12'>
-          
-       
-          
-
-          <Table className={`bg-white Playpen transition-opacity duration-300 ${isPending ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-            <TableHeader className='bg-[#F0F3F6]'>
-              <TableRow>
-                <TableHead className="text-center font-bold">الإجراءات</TableHead>
-                <TableHead className="text-center font-bold">التفاصيل</TableHead>
-                <TableHead className="text-center font-bold">تاريخ الطلب</TableHead>
-                <TableHead className="text-center font-bold">الكمية</TableHead>
-                <TableHead className="text-center font-bold">رقم التواصل</TableHead>
-                <TableHead className="text-center font-bold">المنتج</TableHead>
-                <TableHead className="text-center font-bold">اسم العميل</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {waiting.length === 0 ? (
-                 <TableRow><TableCell colSpan={7} className="text-center py-6 font-bold text-gray-500">لا توجد طلبات قيد الانتظار</TableCell></TableRow>
-              ) : (
-                waiting.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="text-center flex justify-center gap-2">
-                    <button onClick={() => handleDelete(order.id, true)} className='bg-red-500 text-white p-2 rounded-md hover:bg-red-600 duration-300' title="حذف"><Trash2 size={18} /></button>
-                      <button onClick={() => handleMoveToDone(order)} className='bg-black text-white p-2 rounded-md hover:bg-transparent hover:text-black border cursor-pointer border-black duration-300' title="تم التسليم"><CheckCircle size={18} /></button>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <button onClick={() => openDetails(order)} className='bg-gray-100 border border-gray-300 text-black p-2 rounded-md hover:bg-gray-200 duration-300 flex items-center gap-2 mx-auto'>
-                        <Eye size={18} /> عرض
-                      </button>
-                    </TableCell>
-                    <TableCell className="text-center text-sm">{formatDate(order.created_at)}</TableCell>
-                    <TableCell className="text-center font-bold">{order.quantity}</TableCell>
-                    <TableCell className="text-center">{order.PersonNumber}</TableCell>
-                    <TableCell className="text-center truncate max-w-[150px]">{order.ProductName}</TableCell>
-                    <TableCell className="text-center font-bold">{order.PersonName}</TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        {/* تصميم بطاقات للهاتف (قيد الانتظار) */}
+        <div className={`md:hidden flex flex-col gap-4 mb-12 transition-opacity duration-300 ${isPending ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+           {waiting.length === 0 ? (
+             <div className="text-center py-6 font-bold text-gray-500 bg-white rounded-xl shadow-sm border">لا توجد طلبات قيد الانتظار</div>
+           ) : (
+             waiting.map(order => (
+               <div key={order.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col text-right">
+                 <div className="flex justify-between items-center border-b pb-2 mb-3">
+                   <span className="text-[11px] text-gray-500">{formatDate(order.created_at)}</span>
+                   <span className="font-bold text-md text-[#552DD9]">{order.PersonName}</span>
+                 </div>
+                 <div className="mb-3">
+                   <p className="font-semibold text-gray-800 text-sm">{order.ProductName}</p>
+                   <div className="flex justify-between items-center mt-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                     <span>رقم: <span className="font-bold">{order.PersonNumber}</span></span>
+                     <span>الكمية: <span className="font-bold">{order.quantity}</span></span>
+                   </div>
+                 </div>
+                 <div className="flex justify-between items-center pt-2">
+                   <button onClick={() => openDetails(order)} className="bg-gray-100 border text-black px-4 py-2 rounded-md flex items-center gap-1 text-sm font-medium"><Eye size={16}/> التفاصيل</button>
+                   <div className="flex gap-2">
+                     <button onClick={() => handleMoveToDone(order)} className="bg-black text-white p-2 rounded-md"><CheckCircle size={18}/></button>
+                     <button onClick={() => handleDelete(order.id, true)} className="bg-red-500 text-white p-2 rounded-md"><Trash2 size={18}/></button>
+                   </div>
+                 </div>
+               </div>
+             ))
+           )}
         </div>
 
-        {/* ==================== جدول تم التسليم ==================== */}
-        <div className='mt-10'>
-          <h3 className='text-right text-[20px] Playpen font-medium mb-4 text-gray-700'>: طلبات تم تسليمها</h3>
+        {/* جدول الشاشات الكبيرة (قيد الانتظار) */}
+        <div className='hidden md:block relative border border-[#B8C2CC] rounded-2xl shadow-md overflow-hidden mb-12'>
+          <div className="overflow-x-auto">
+            <Table className={`bg-white Playpen transition-opacity duration-300 ${isPending ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+              <TableHeader className='bg-[#F0F3F6]'>
+                <TableRow>
+                  <TableHead className="text-center font-bold">الإجراءات</TableHead>
+                  <TableHead className="text-center font-bold">التفاصيل</TableHead>
+                  <TableHead className="text-center font-bold">تاريخ الطلب</TableHead>
+                  <TableHead className="text-center font-bold">الكمية</TableHead>
+                  <TableHead className="text-center font-bold">رقم التواصل</TableHead>
+                  <TableHead className="text-center font-bold">المنتج</TableHead>
+                  <TableHead className="text-center font-bold">اسم العميل</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {waiting.length === 0 ? (
+                  <TableRow><TableCell colSpan={7} className="text-center py-6 font-bold text-gray-500">لا توجد طلبات قيد الانتظار</TableCell></TableRow>
+                ) : (
+                  waiting.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="text-center flex justify-center gap-2">
+                        <button onClick={() => handleDelete(order.id, true)} className='bg-red-500 text-white p-2 rounded-md hover:bg-red-600 duration-300'><Trash2 size={18} /></button>
+                        <button onClick={() => handleMoveToDone(order)} className='bg-black text-white p-2 rounded-md hover:bg-transparent hover:text-black border border-black duration-300'><CheckCircle size={18} /></button>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <button onClick={() => openDetails(order)} className='bg-gray-100 border border-gray-300 text-black p-2 rounded-md hover:bg-gray-200 duration-300 flex items-center gap-2 mx-auto'><Eye size={18} /> عرض</button>
+                      </TableCell>
+                      <TableCell className="text-center text-sm">{formatDate(order.created_at)}</TableCell>
+                      <TableCell className="text-center font-bold">{order.quantity}</TableCell>
+                      <TableCell className="text-center">{order.PersonNumber}</TableCell>
+                      <TableCell className="text-center truncate max-w-[150px]">{order.ProductName}</TableCell>
+                      <TableCell className="text-center font-bold">{order.PersonName}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+
+        {/* ==================== طلبات تم تسليمها ==================== */}
+        <div className='mt-8 md:mt-10'>
+          <h3 className='text-center md:text-right text-[20px] Playpen font-medium mb-4 text-gray-700'>طلبات تم تسليمها</h3>
         </div>
         
-        {/* 👈 بنكرر نفس الفكرة في الجدول التاني */}
-        <div className='relative border border-[#B8C2CC] rounded-2xl shadow-md overflow-hidden pb-5'>
-          
-          
+        {/* تصميم بطاقات للهاتف (تم التسليم) */}
+        <div className={`md:hidden flex flex-col gap-4 pb-5 transition-opacity duration-300 ${isPending ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+           {done.length === 0 ? (
+             <div className="text-center py-6 font-bold text-gray-500 bg-white rounded-xl shadow-sm border">لا توجد طلبات مسلّمة</div>
+           ) : (
+             done.map(order => (
+               <div key={order.id} className="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col text-right">
+                 <div className="flex justify-between items-center border-b pb-2 mb-3">
+                   <span className="text-[11px] text-gray-500">{formatDate(order.created_at)}</span>
+                   <span className="font-bold text-md text-[#552DD9]">{order.PersonName}</span>
+                 </div>
+                 <div className="mb-3">
+                   <p className="font-semibold text-gray-800 text-sm">{order.ProductName}</p>
+                 </div>
+                 <div className="flex justify-between items-center pt-2">
+                   <button onClick={() => openDetails(order)} className="bg-white border text-black px-4 py-2 rounded-md flex items-center gap-1 text-sm font-medium"><Eye size={16}/> التفاصيل</button>
+                   <div className="flex gap-2">
+                     <button onClick={() => handleMoveToWaiting(order)} className="bg-black text-white p-2 rounded-md"><RotateCcw size={18}/></button>
+                     <button onClick={() => handleDelete(order.id, false)} className="bg-red-500 text-white p-2 rounded-md"><Trash2 size={18}/></button>
+                   </div>
+                 </div>
+               </div>
+             ))
+           )}
+        </div>
 
-          <Table className={`bg-white Playpen transition-opacity duration-300 ${isPending ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-            <TableHeader className='bg-[#F0F3F6]'>
-              <TableRow>
-                <TableHead className="text-center font-bold">الإجراءات</TableHead>
-                <TableHead className="text-center font-bold">التفاصيل</TableHead>
-                <TableHead className="text-center font-bold">تاريخ الطلب</TableHead>
-                <TableHead className="text-center font-bold">الكمية</TableHead>
-                <TableHead className="text-center font-bold">رقم التواصل</TableHead>
-                <TableHead className="text-center font-bold">المنتج</TableHead>
-                <TableHead className="text-center font-bold">اسم العميل</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {done.length === 0 ? (
-                 <TableRow><TableCell colSpan={7} className="text-center py-6 font-bold text-gray-500">لا توجد طلبات مسلّمة</TableCell></TableRow>
-              ) : (
-                done.map((order) => (
-                  <TableRow key={order.id} className='bg-gray-50'>
-                    <TableCell className="text-center flex justify-center gap-2">
-                    <button onClick={() => handleDelete(order.id, false)} className='bg-red-500 text-white p-2 rounded-md hover:bg-red-600 duration-300' title="حذف"><Trash2 size={18} /></button>
-                      <button onClick={() => handleMoveToWaiting(order)} className='bg-black text-white p-2 rounded-md hover:bg-transparent hover:text-black border cursor-pointer border-black duration-300' title="إرجاع لقيد الانتظار"><RotateCcw size={18} /></button>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <button onClick={() => openDetails(order)} className='bg-white border border-gray-300 text-black p-2 rounded-md hover:bg-gray-100 duration-300 flex items-center gap-2 mx-auto'>
-                        <Eye size={18} /> عرض
-                      </button>
-                    </TableCell>
-                    <TableCell className="text-center text-sm">{formatDate(order.created_at)}</TableCell>
-                    <TableCell className="text-center font-bold">{order.quantity}</TableCell>
-                    <TableCell className="text-center">{order.PersonNumber}</TableCell>
-                    <TableCell className="text-center truncate max-w-[150px]">{order.ProductName}</TableCell>
-                    <TableCell className="text-center font-bold">{order.PersonName}</TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+        {/* جدول الشاشات الكبيرة (تم التسليم) */}
+        <div className='hidden md:block relative border border-[#B8C2CC] rounded-2xl shadow-md overflow-hidden pb-5'>
+          <div className="overflow-x-auto">
+            <Table className={`bg-white Playpen transition-opacity duration-300 ${isPending ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+              <TableHeader className='bg-[#F0F3F6]'>
+                <TableRow>
+                  <TableHead className="text-center font-bold">الإجراءات</TableHead>
+                  <TableHead className="text-center font-bold">التفاصيل</TableHead>
+                  <TableHead className="text-center font-bold">تاريخ الطلب</TableHead>
+                  <TableHead className="text-center font-bold">الكمية</TableHead>
+                  <TableHead className="text-center font-bold">رقم التواصل</TableHead>
+                  <TableHead className="text-center font-bold">المنتج</TableHead>
+                  <TableHead className="text-center font-bold">اسم العميل</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {done.length === 0 ? (
+                  <TableRow><TableCell colSpan={7} className="text-center py-6 font-bold text-gray-500">لا توجد طلبات مسلّمة</TableCell></TableRow>
+                ) : (
+                  done.map((order) => (
+                    <TableRow key={order.id} className='bg-gray-50'>
+                      <TableCell className="text-center flex justify-center gap-2">
+                        <button onClick={() => handleDelete(order.id, false)} className='bg-red-500 text-white p-2 rounded-md hover:bg-red-600 duration-300'><Trash2 size={18} /></button>
+                        <button onClick={() => handleMoveToWaiting(order)} className='bg-black text-white p-2 rounded-md hover:bg-transparent hover:text-black border border-black duration-300'><RotateCcw size={18} /></button>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <button onClick={() => openDetails(order)} className='bg-white border border-gray-300 text-black p-2 rounded-md hover:bg-gray-100 duration-300 flex items-center gap-2 mx-auto'><Eye size={18} /> عرض</button>
+                      </TableCell>
+                      <TableCell className="text-center text-sm">{formatDate(order.created_at)}</TableCell>
+                      <TableCell className="text-center font-bold">{order.quantity}</TableCell>
+                      <TableCell className="text-center">{order.PersonNumber}</TableCell>
+                      <TableCell className="text-center truncate max-w-[150px]">{order.ProductName}</TableCell>
+                      <TableCell className="text-center font-bold">{order.PersonName}</TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto Playpen !rounded-3xl">
+        <DialogContent className="w-[95%] md:max-w-3xl max-h-[85vh] overflow-y-auto Playpen !rounded-3xl p-4 md:p-6">
           <DialogHeader>
-            <DialogTitle className="text-center text-2xl font-bold mb-4">تفاصيل الطلب</DialogTitle>
+            <DialogTitle className="text-center text-xl md:text-2xl font-bold mb-4 mt-2">تفاصيل الطلب</DialogTitle>
           </DialogHeader>
           
           {selectedOrder && (
-            <div className="flex flex-col gap-6 text-right">
-              
-              <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
-                <h4 className="font-bold text-lg mb-3 border-b pb-2">بيانات العميل</h4>
-                <div className="grid grid-cols-2 gap-4 text-[15px]">
-              
-                  <div><span className="font-bold">رقم الهاتف:</span> {selectedOrder.PersonNumber}</div>
-                  <div><span className="font-bold">الاسم:</span> {selectedOrder.PersonName}</div>
-                  <div className="col-span-2"><span className="font-bold">العنوان:</span> {selectedOrder.PersonAddress}</div>
-                  {selectedOrder.PersonNumber2 && <div><span className="font-bold">رقم بديل:</span> {selectedOrder.PersonNumber2}</div>}
-                  {selectedOrder.description && <div className="col-span-2"><span className="font-bold">ملاحظات إضافية:</span> {selectedOrder.description}</div>}
+            <div className="flex flex-col gap-4 md:gap-6 text-right">
+              <div className="bg-gray-50 p-4 md:p-5 rounded-xl border border-gray-200">
+                <h4 className="font-bold text-md md:text-lg mb-3 border-b pb-2">بيانات العميل</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[14px] md:text-[15px]">
+                  <div><span className="font-bold">رقم الهاتف:</span> <br className="md:hidden"/>{selectedOrder.PersonNumber}</div>
+                  <div><span className="font-bold">الاسم:</span> <br className="md:hidden"/>{selectedOrder.PersonName}</div>
+                  <div className="md:col-span-2"><span className="font-bold">العنوان:</span> <br className="md:hidden"/>{selectedOrder.PersonAddress}</div>
+                  {selectedOrder.PersonNumber2 && <div><span className="font-bold">رقم بديل:</span> <br className="md:hidden"/>{selectedOrder.PersonNumber2}</div>}
+                  {selectedOrder.description && <div className="md:col-span-2"><span className="font-bold">ملاحظات إضافية:</span> <br className="md:hidden"/>{selectedOrder.description}</div>}
                 </div>
               </div>
 
               <div>
-                <h4 className="font-bold text-lg mb-3 text-right">المنتج المطلوب</h4>
-                <div className="flex gap-4 p-3 border border-gray-200 rounded-xl items-center bg-white">
-                  <div className="flex-1 text-right">
-                    <p className="font-bold text-[18px]">{selectedOrder.ProductName}</p>
-                    <p className="text-sm text-gray-500 mb-2">سعر القطعة: {selectedOrder.price_per_unit} EGP | الكمية: {selectedOrder.quantity}</p>
+                <h4 className="font-bold text-md md:text-lg mb-2 md:mb-3 text-right">المنتج المطلوب</h4>
+                <div className="flex flex-col md:flex-row gap-4 p-3 border border-gray-200 rounded-xl items-center md:items-start bg-white">
+                  <div className="flex-1 text-center md:text-right order-2 md:order-1 w-full">
+                    <p className="font-bold text-[16px] md:text-[18px] mb-1">{selectedOrder.ProductName}</p>
+                    <p className="text-xs md:text-sm text-gray-500 mb-2">سعر القطعة: {selectedOrder.price_per_unit} EGP | الكمية: {selectedOrder.quantity}</p>
                     
-                    <div className="flex flex-wrap gap-2 justify-end mt-2">
+                    <div className="flex flex-wrap gap-2 justify-center md:justify-end mt-2">
                       {selectedOrder.Productsdetails?.map((d, i) => (
-                        <span key={i} className="bg-gray-100 border border-gray-300 text-[12px] px-3 py-1.5 rounded-md text-black font-medium">
+                        <span key={i} className="bg-gray-100 border border-gray-300 text-[11px] md:text-[12px] px-2 py-1 md:px-3 md:py-1.5 rounded-md text-black font-medium">
                           مقاس: <span className="font-bold">{d.size || "؟"}</span> | لون: <span className="font-bold text-[#000000]">{d.color || "؟"}</span>
                         </span>
                       ))}
                     </div>
                   </div>
-                  <img src={selectedOrder.images?.[0]} alt={selectedOrder.ProductName} className="w-[90px] h-[90px] object-cover rounded-lg border border-gray-200 shadow-sm" />
+                  <img src={selectedOrder.images?.[0]} alt={selectedOrder.ProductName} className="w-[80px] h-[80px] md:w-[90px] md:h-[90px] object-cover rounded-lg border border-gray-200 shadow-sm order-1 md:order-2" />
                 </div>
               </div>
 
-              <div className="bg-black text-white p-4 rounded-xl flex justify-between items-center mt-2">
-                <span className="font-bold text-xl">{selectedOrder.subtotal} EGP</span>
-                <span className="font-bold text-lg">: إجمالي المنتج</span>
+              <div className="bg-black text-white p-3 md:p-4 rounded-xl flex justify-between items-center mt-2">
+                <span className="font-bold text-lg md:text-xl">{selectedOrder.subtotal} EGP</span>
+                <span className="font-bold text-md md:text-lg">: إجمالي المنتج</span>
               </div>
-
             </div>
           )}
         </DialogContent>

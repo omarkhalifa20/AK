@@ -15,7 +15,7 @@ import { Plus, X, ListPlus } from 'lucide-react'
 import { supabase } from '@/lib/supabaseClient'
 import Loader from '../Loader/Loader'
 import toast from 'react-hot-toast'
-import { Productmod } from '@/Types/Productmod' // استيراد الـ Type الخاص بالمنتج
+import { Productmod } from '@/Types/Productmod'
 
 type Inputs = {
   productName: string
@@ -25,7 +25,6 @@ type Inputs = {
   productImages: FileList
 }
 
-// نوع بيانات المتغير الجديد
 type Variant = {
   id: string; 
   color: string;
@@ -33,17 +32,15 @@ type Variant = {
   quantity: number;
 }
 
-// تعريف الـ Props بنوع بيانات صارم ومحدد بدلاً من any
 type ProductsAddProps = {
   setProducts?: React.Dispatch<React.SetStateAction<Productmod[]>>
 }
 
 export default function ProductsAdd({ setProducts }: ProductsAddProps) {
-  const categories = ["mens", "womens", "childs", "olds"]
+  const categories = ["mens", "womens", "childs"]
   const [loading, setLoading] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
-  // الـ States الخاصة بالمتغيرات
   const [variants, setVariants] = useState<Variant[]>([])
   const [tempColor, setTempColor] = useState("")
   const [tempSize, setTempSize] = useState("")
@@ -56,7 +53,6 @@ export default function ProductsAdd({ setProducts }: ProductsAddProps) {
     formState: { errors },
   } = useForm<Inputs>()
 
-  // دالة إضافة متغير (لون + مقاس + كمية)
   const addVariant = () => {
     if (!tempColor.trim() || !tempSize.trim() || !tempQty || tempQty <= 0) {
       toast.error("برجاء إدخال اللون والمقاس والكمية بشكل صحيح")
@@ -72,13 +68,11 @@ export default function ProductsAdd({ setProducts }: ProductsAddProps) {
 
     setVariants(prev => [...prev, newVariant])
     
-    // تفريغ الخانات بعد الإضافة عشان يضيف اللي بعده
     setTempColor("")
     setTempSize("")
     setTempQty("")
   }
 
-  // دالة مسح متغير
   const removeVariant = (id: string) => {
     setVariants(prev => prev.filter(v => v.id !== id))
   }
@@ -91,13 +85,11 @@ export default function ProductsAdd({ setProducts }: ProductsAddProps) {
 
     setLoading(true)
 
-    // حساب البيانات الإجمالية من المتغيرات أوتوماتيكياً
     const totalQuantity = variants.reduce((acc, curr) => acc + curr.quantity, 0)
     
     const files = data.productImages as FileList
     const imageUrls: string[] = []
 
-    // رفع الصور
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       const fileName = `${crypto.randomUUID()}-${file.name}`;
@@ -116,7 +108,6 @@ export default function ProductsAdd({ setProducts }: ProductsAddProps) {
       imageUrls.push(urlData.publicUrl)
     }
 
-    // إضافة المنتج لقاعدة البيانات
     const { data: newProduct, error } = await supabase.from("Products").insert([
       {
         name: data.productName,
@@ -135,7 +126,6 @@ export default function ProductsAdd({ setProducts }: ProductsAddProps) {
     } else {
       toast.success("تم إضافة المنتج بنجاح")
       
-      // تحديث قائمة المنتجات في الجدول فوراً بنوع بيانات محدد مسبقاً
       if (setProducts && newProduct) {
         setProducts((prev) => [newProduct[0] as Productmod, ...prev]);
       }
@@ -155,10 +145,10 @@ export default function ProductsAdd({ setProducts }: ProductsAddProps) {
           <Plus size={20} /> <p className='mb-2'>اضافه منتج </p>
         </DialogTrigger>
         
-        <DialogContent className='!max-w-[65%] !min-h-[75%] !max-h-[98vh] overflow-y-auto !rounded-4xl' >
+        <DialogContent className='w-[95%] md:!max-w-[65%] max-h-[90vh] overflow-y-auto !rounded-3xl p-4 md:p-6' >
           {loading ? <Loader /> : <>
             <DialogHeader>
-              <DialogTitle className='text-center katibeh text-[24px] mb-6 text-[#6E38FF]'>اضافه المنتج</DialogTitle>
+              <DialogTitle className='text-center katibeh text-[24px] mb-4 md:mb-6 text-[#6E38FF]'>اضافه المنتج</DialogTitle>
               <DialogDescription asChild>
                 <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-4 '>
                   
@@ -176,11 +166,13 @@ export default function ProductsAdd({ setProducts }: ProductsAddProps) {
                     {errors.productPrice && (<span className="text-red-500 text-right text-sm">{errors.productPrice.message}</span>)}
                   </div>
 
-                  {/* قسم المجموعات */}
+                  {/* قسم المجموعات (تم إضافة flex-wrap) */}
                   <div className='flex flex-col '>
-                    <div className='flex gap-5 !text-[16px] text-[#6d38ffc4] font-normal Playpen p-[5px] rounded-md border-2 shadow-sm border-[#6d38ffc4] justify-end pr-2'>
+                    
+                    <div className='flex flex-wrap gap-3 md:gap-5 !text-[16px] text-[#6d38ffc4] font-normal Playpen p-[10px] md:p-[5px] rounded-md border-2 shadow-sm border-[#6d38ffc4] justify-center md:justify-end pr-2'>
+                    <p className='w-full text-center md:w-auto md:text-right mb-2 md:mb-0'>: اختر المجموعه</p>
                       {categories.map((cat) => (
-                        <label key={cat} className="flex gap-2 items-center">
+                        <label key={cat} className="flex gap-2 items-center cursor-pointer">
                           <input
                             type="checkbox"
                             value={cat}
@@ -191,52 +183,56 @@ export default function ProductsAdd({ setProducts }: ProductsAddProps) {
                           {cat}
                         </label>
                       ))}
-                      <p className=''>: اختر المجموعه</p>
+                      
                     </div>
                     {errors.productCategory && (<span className="text-red-500 text-right text-sm">{errors.productCategory.message}</span>)}
                   </div>
 
-                  {/* ----------------- قسم بناء المتغيرات (الكميات، الألوان، المقاسات) ----------------- */}
-                  <div className='flex flex-col gap-3 p-4 border-2 border-[#6d38ffc4] border-dashed rounded-xl'>
-                    <p className='text-right text-[#6E38FF] font-bold Playpen'>تفاصيل المخزن (الألوان والمقاسات)</p>
+                  {/* قسم بناء المتغيرات (تم تعديل التصميم ليتناسب مع الهاتف) */}
+                  <div className='flex flex-col gap-3 p-3 md:p-4 border-2 border-[#6d38ffc4] border-dashed rounded-xl'>
+                    <p className='text-center md:text-right text-[#6E38FF] font-bold Playpen'>تفاصيل المخزن (الألوان والمقاسات)</p>
                     
-                    <div className='flex gap-2 items-center'>
-                      <button type="button" onClick={addVariant} className='bg-[#6E38FF] text-white p-2 rounded-lg hover:bg-[#5a2de0] duration-300'>
-                        <ListPlus size={24} />
-                      </button>
-                      <Input 
-                        value={tempQty} onChange={(e) => setTempQty(e.target.value === "" ? "" : Number(e.target.value))} 
-                        className='text-center text-[#000] border-[#6d38ffc4] flex-1 placeholder:text-[#6d38ffc4]' type="number" placeholder="الكمية" />
-                      <Input 
-                        value={tempSize} onChange={(e) => setTempSize(e.target.value)} 
-                        className='text-center text-[#000] border-[#6d38ffc4] flex-1 placeholder:text-[#6d38ffc4]' type="text" placeholder="المقاس (مثال: M)" />
-                      <Input 
-                        value={tempColor} onChange={(e) => setTempColor(e.target.value)} 
-                        className='text-center text-[#000] border-[#6d38ffc4] flex-1 placeholder:text-[#6d38ffc4]' type="text" placeholder="اللون (مثال: أحمر)" />
+                    <div className='flex flex-col md:flex-row gap-2 items-center w-full'>
+                      <div className='flex w-full gap-2'>
+                        <Input 
+                          value={tempQty} onChange={(e) => setTempQty(e.target.value === "" ? "" : Number(e.target.value))} 
+                          className='text-center text-[#000] border-[#6d38ffc4] w-1/2 placeholder:text-[#6d38ffc4]' type="number" placeholder="الكمية" />
+                        <Input 
+                          value={tempSize} onChange={(e) => setTempSize(e.target.value)} 
+                          className='text-center text-[#000] border-[#6d38ffc4] w-1/2 placeholder:text-[#6d38ffc4]' type="text" placeholder="المقاس" />
+                      </div>
+                      
+                      <div className='flex w-full gap-2'>
+                        <Input 
+                          value={tempColor} onChange={(e) => setTempColor(e.target.value)} 
+                          className='text-center text-[#000] border-[#6d38ffc4] flex-1 placeholder:text-[#6d38ffc4]' type="text" placeholder="اللون" />
+                        <button type="button" onClick={addVariant} className='bg-[#6E38FF] text-white p-2 w-[50px] flex justify-center items-center rounded-lg hover:bg-[#5a2de0] duration-300'>
+                          <ListPlus size={24} />
+                        </button>
+                      </div>
                     </div>
 
-                    {/* عرض المتغيرات اللي تم إضافتها */}
+                    {/* عرض المتغيرات */}
                     {variants.length > 0 && (
                       <div className='flex flex-col gap-2 mt-3'>
                         {variants.map((v) => (
-                          <div key={v.id} className='flex justify-between items-center bg-[#f0ecff] p-2 rounded-md px-4 border border-[#d6ccff]'>
+                          <div key={v.id} className='flex justify-between items-center bg-[#f0ecff] p-2 rounded-md px-3 border border-[#d6ccff]'>
                             <button type="button" onClick={() => removeVariant(v.id)} className='text-red-500 hover:text-red-700 bg-white rounded-full p-1 shadow-sm'><X size={16} /></button>
-                            <div className='flex gap-4 text-[#6E38FF] Playpen font-medium text-[15px]'>
+                            <div className='flex flex-wrap justify-end gap-2 text-[#6E38FF] Playpen font-medium text-[13px] md:text-[15px]'>
                               <span>الكمية: {v.quantity}</span>
-                              <span>|</span>
+                              <span className="hidden md:inline">|</span>
                               <span>المقاس: {v.size}</span>
-                              <span>|</span>
+                              <span className="hidden md:inline">|</span>
                               <span>اللون: {v.color}</span>
                             </div>
                           </div>
                         ))}
-                        <div className='text-right text-[14px] text-gray-500 mt-1 Playpen'>
+                        <div className='text-center md:text-right text-[14px] text-gray-500 mt-1 Playpen'>
                           إجمالي الكمية: {variants.reduce((acc, curr) => acc + curr.quantity, 0)} قطعة
                         </div>
                       </div>
                     )}
                   </div>
-                  {/* ------------------------------------------------------------------------- */}
 
                   <div className='flex flex-col'>
                     <textarea
@@ -250,7 +246,7 @@ export default function ProductsAdd({ setProducts }: ProductsAddProps) {
                       <legend className="fieldset-legend Playpen text-[#6E38FF] text-[14px] text-center px-2">اختار الصور</legend>
                       <input 
                         {...register("productImages" , { required: "ادخل صور المنتج" })}
-                        multiple accept='image/*' type="file" className="file-input w-full " />
+                        multiple accept='image/*' type="file" className="file-input w-full text-sm" />
                     </fieldset>
                     {errors.productImages && (<span className="text-red-500 text-right text-sm mt-1">{errors.productImages.message}</span>)}
                   </div>

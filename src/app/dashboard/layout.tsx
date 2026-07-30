@@ -9,7 +9,7 @@ export default function layout({
   return (
     <div className="min-h-screen bg-[#F5F3F1]">
       <DashboardNav/>
-      <div className='pe-[231px]'>
+      <div className='lg:pe-[231px]'>
         {children}
       </div>
       
